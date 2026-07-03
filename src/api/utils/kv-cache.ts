@@ -11,7 +11,7 @@ export const createKvCache = (namespace: string): AlovaGlobalCacheAdapter => {
 
   return {
     get: async <T>(storageKey: string) => {
-      const entry = await db.service.get(toDatabaseKey(storageKey))
+      const entry = await db.kv.get(toDatabaseKey(storageKey))
       if (!entry) {
         return
       }
@@ -19,14 +19,14 @@ export const createKvCache = (namespace: string): AlovaGlobalCacheAdapter => {
     },
     set: async (storageKey, value) => {
       const key = toDatabaseKey(storageKey)
-      await db.service.put({ key, value, namespace }, key)
+      await db.kv.put({ key, value, namespace }, key)
     },
     remove: async (storageKey) => {
       const key = toDatabaseKey(storageKey)
-      await db.service.delete(key)
+      await db.kv.delete(key)
     },
     clear: async () => {
-      await db.service.where('namespace').equals(namespace).delete()
+      await db.kv.where('namespace').equals(namespace).delete()
     },
   }
 }
