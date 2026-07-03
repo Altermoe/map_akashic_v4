@@ -24,6 +24,19 @@ onMounted(() => {
     canvas,
     views: props.views,
     pickAsync: 'async',
+    // 性能优化: 视口变化期间禁用 pick 以提高帧率
+    onInteractionStateChange: (state) => {
+      const changing = Boolean(
+        state.inTransition ||
+        state.isDragging ||
+        state.isPanning ||
+        state.isZooming ||
+        state.isRotating,
+      )
+      const pickable = !changing
+      if (deck.props._pickable === pickable) return
+      deck.setProps({ _pickable: pickable })
+    },
     getCursor: ({ isDragging, isHovering }) => {
       return isDragging ? 'grabbing' : isHovering ? 'pointer' : 'default'
     },
