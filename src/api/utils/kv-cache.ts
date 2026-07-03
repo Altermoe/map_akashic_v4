@@ -1,24 +1,5 @@
 import type { AlovaGlobalCacheAdapter } from 'alova'
-import { Dexie, type Table } from 'dexie'
-
-interface CacheEntry {
-  key: string
-  namespace: string
-  value: unknown
-}
-
-class KVCache extends Dexie {
-  declare service: Table<CacheEntry, string>
-
-  constructor() {
-    super('AppKVCache')
-    this.version(1).stores({
-      service: '&key, namespace',
-    })
-  }
-}
-
-const db = new KVCache()
+import { db } from '@/database'
 
 /**
  * 创建 idb 本地缓存表的工厂函数
