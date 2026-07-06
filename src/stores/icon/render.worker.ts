@@ -36,7 +36,10 @@ export interface RenderRequest {
   /** 图标列表 */
   data: { id: number; url: string }[]
   /** 状态列表 - 按顺序渲染 */
-  state?: { url: string }[]
+  state?: {
+    key: string
+    url: string
+  }[]
   /** 渲染参数 */
   render?: Partial<RenderOptions>
 }
@@ -174,24 +177,25 @@ handleRequest<RenderRequest, RenderResult>(
       return bmp
     }, CONCURRENCY_LIMIT)
 
+    // 下载主图标
     const settled = await (async () => {
       const total = data.length
       if (total === 0) {
-        progress(80, '无图标需要下载')
+        progress(40, '无主图标需要下载')
         return [] as PromiseSettledResult<ImageBitmap>[]
       }
-      progress(0, `准备下载 ${total} 个图标`)
+      progress(0, `准备下载 ${total} 个主图标`)
       let finished = 0
       const tasks = data.map(({ url }) =>
         getIcon(url).then(
           (value): PromiseSettledResult<ImageBitmap> => {
             finished += 1
-            progress(Math.round((finished / total) * 80), `下载图标中 ${finished}/${total}`)
+            progress(Math.round((finished / total) * 40), `下载主图标中 ${finished}/${total}`)
             return { status: 'fulfilled', value }
           },
           (reason): PromiseSettledResult<ImageBitmap> => {
             finished += 1
-            progress(Math.round((finished / total) * 80), `下载图标中 ${finished}/${total}`)
+            progress(Math.round((finished / total) * 40), `下载主图标中 ${finished}/${total}`)
             return { status: 'rejected', reason }
           },
         ),
@@ -199,8 +203,44 @@ handleRequest<RenderRequest, RenderResult>(
       return Promise.all(tasks)
     })()
 
-    // 每个图标使用的 bitmap（失败时降级为 fallback）
+    // 每个主图标使用的 bitmap（失败时降级为 fallback）
     const bitmaps: ImageBitmap[] = settled.map((r) =>
+      r.status === 'fulfilled' ? r.value : fallbackImageBitmap,
+    )
+
+    // 下载 state 图标
+    const stateSettled = await (async () => {
+      if (!state || state.length === 0) {
+        progress(80, '无状态图标需要下载')
+        return [] as PromiseSettledResult<ImageBitmap>[]
+      }
+      progress(40, `准备下载 ${state.length} 个状态图标`)
+      let finished = 0
+      const tasks = state.map(({ url }) =>
+        getIcon(url).then(
+          (value): PromiseSettledResult<ImageBitmap> => {
+            finished += 1
+            progress(
+              40 + Math.round((finished / state.length) * 40),
+              `下载状态图标中 ${finished}/${state.length}`,
+            )
+            return { status: 'fulfilled', value }
+          },
+          (reason): PromiseSettledResult<ImageBitmap> => {
+            finished += 1
+            progress(
+              40 + Math.round((finished / state.length) * 40),
+              `下载状态图标中 ${finished}/${state.length}`,
+            )
+            return { status: 'rejected', reason }
+          },
+        ),
+      )
+      return Promise.all(tasks)
+    })()
+
+    // 每个 state 图标使用的 bitmap（失败时降级为 fallback）
+    const stateBitmaps: ImageBitmap[] = stateSettled.map((r) =>
       r.status === 'fulfilled' ? r.value : fallbackImageBitmap,
     )
 
@@ -302,10 +342,16 @@ handleRequest<RenderRequest, RenderResult>(
     })
     device.queue.writeBuffer(uvBuffer, 0, uvs)
 
-    // 收集所有待绘制的图标（第一行的 fallback + 图标行的成功项）
+    // 收集所有待绘制的图标（第一行的 fallback + state + 图标行的成功项）
     progress(86, '构建图标顶点数据')
     const iconsToDraw: { bmp: ImageBitmap; cellX: number; cellY: number }[] = []
     iconsToDraw.push({ bmp: fallbackImageBitmap, cellX: 0, cellY: 0 })
+    // 添加 state 图标到首行，unknown 图标后
+    for (let i = 0; i < (state?.length ?? 0); i++) {
+      if (stateSettled[i].status !== 'fulfilled') continue
+      iconsToDraw.push({ bmp: stateBitmaps[i], cellX: (i + 1) * pitch, cellY: 0 })
+    }
+    // 添加主图标
     for (let i = 0; i < data.length; i++) {
       if (settled[i].status !== 'fulfilled') continue
       const col = i % layout.cols
