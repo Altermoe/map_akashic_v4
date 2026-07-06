@@ -39,12 +39,20 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       Record<never, never>,
       | '/development/'
+      | '/development/icon-container'
       | '/development/map-filter'
       | '/development/marker-texture-render'
     >,
     '/development/': RouteRecordInfo<
       '/development/',
       '/development',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/development/icon-container': RouteRecordInfo<
+      '/development/icon-container',
+      '/development/icon-container',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -107,6 +115,7 @@ declare module 'vue-router/auto-routes' {
       routes:
         | '/development'
         | '/development/'
+        | '/development/icon-container'
         | '/development/map-filter'
         | '/development/marker-texture-render'
       views:
@@ -115,6 +124,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/development/index.vue': {
       routes:
         | '/development/'
+      views:
+        | never
+    }
+    'src/pages/development/icon-container.vue': {
+      routes:
+        | '/development/icon-container'
       views:
         | never
     }
