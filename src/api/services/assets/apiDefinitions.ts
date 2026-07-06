@@ -7,14 +7,7 @@ const root = navigator.storage.getDirectory()
 const cachedDirHandles = new Map<string, Promise<FileSystemDirectoryHandle>>()
 
 const getUrlMeta = (url: string) => {
-  // 移除协议头 (https://)，然后按 / 分割
-  const path = url.replace(/^https?:\/\//, '')
-
-  // 正则解析：
-  // ([^/]+) 匹配所有非斜杠字符
-  // (?=/|$) 断言后面跟着斜杠或者是字符串末尾
-  const parts = path.match(/[^/]+/g)
-
+  const parts = url.replace(/^[a-z]+:\/\//i, '').split('/')
   if (!parts) {
     throw new Error(`无法匹配缓存目录: "${url}"`)
   }
@@ -29,7 +22,10 @@ const openDir = (
   /** @example 'tileset/tile_twt64/10' */
   path: string,
 ) => {
-  const segments = path.split('/').filter(Boolean)
+  const segments = path
+    .replace(/^[a-z]+:\/\//i, '')
+    .split('/')
+    .filter(Boolean)
   if (segments.length === 0) return root
   const dirPromise = (async () => {
     let currentHandle = await root
