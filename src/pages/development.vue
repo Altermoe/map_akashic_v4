@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import { router } from '@/router'
 
-const components = router
-  .getRoutes()
-  .filter((route) => route.path.startsWith('/development/'))
-  .map((route) => ({
-    path: route.path,
-    label: route.meta.title,
-  }))
+const components = computed(() => {
+  return router
+    .getRoutes()
+    .filter((route) => route.path.startsWith('/development/'))
+    .map((route) => ({
+      path: route.path,
+      label: route.meta.title,
+    }))
+})
 </script>
 
 <template>
