@@ -42,6 +42,7 @@ declare module 'vue-router/auto-routes' {
       | '/development/icon-container'
       | '/development/map-filter'
       | '/development/marker-texture-render'
+      | '/development/worker-marker-state'
     >,
     '/development/': RouteRecordInfo<
       '/development/',
@@ -67,6 +68,13 @@ declare module 'vue-router/auto-routes' {
     '/development/marker-texture-render': RouteRecordInfo<
       '/development/marker-texture-render',
       '/development/marker-texture-render',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/development/worker-marker-state': RouteRecordInfo<
+      '/development/worker-marker-state',
+      '/development/worker-marker-state',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -118,6 +126,7 @@ declare module 'vue-router/auto-routes' {
         | '/development/icon-container'
         | '/development/map-filter'
         | '/development/marker-texture-render'
+        | '/development/worker-marker-state'
       views:
         | 'default'
     }
@@ -142,6 +151,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/development/marker-texture-render.vue': {
       routes:
         | '/development/marker-texture-render'
+      views:
+        | never
+    }
+    'src/pages/development/worker-marker-state.vue': {
+      routes:
+        | '/development/worker-marker-state'
       views:
         | never
     }

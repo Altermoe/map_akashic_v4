@@ -1,12 +1,28 @@
+import { computedAsync } from '@vueuse/core'
 import { useRequest } from 'alova/client'
 import { defineStore } from 'pinia'
 import Api from '@/api'
-import { formatPerformanceTime } from '@/utils/common'
+// oxlint-disable-next-line import/default
+import markerStateWorkerUrl from '@/stores/marker/decode.worker?worker&url'
+import type { MarkerDecodeOutput, MarkerDecodeInput } from '@/stores/marker/decode.worker'
+import { invokeWorker } from '@/utils/worker'
 
 export interface MarkerThin {
   id: string
   name: string
   pos: readonly [x: number, y: number]
+}
+
+let worker: Worker | null = null
+
+const ensureWorker = () => {
+  if (!worker) {
+    worker = new Worker(markerStateWorkerUrl, {
+      type: 'module',
+      name: 'marker-data-decoder',
+    })
+  }
+  return worker
 }
 
 export const useMarkerStore = defineStore('item', () => {
@@ -17,31 +33,23 @@ export const useMarkerStore = defineStore('item', () => {
     },
   })
 
-  const markerSet = computed(() => {
-    const start = performance.now()
-    const { markers: source } = data.value
-    const { length } = source
-    const indexArray = new Array(length) as Array<MarkerThin>
-    const indexMap = new Map<string, MarkerThin>()
-    for (let i = 0; i < length; i++) {
-      const marker = source[i]
-      const id = marker.id as unknown as string
-      const [x, y] = marker.position?.split(',') ?? []
-      const pos = [Number(x), Number(y)] as const
-      const thin: MarkerThin = {
-        id,
-        pos,
-        name: marker.markerTitle ?? '',
-      }
-      indexMap.set(id, thin)
-      indexArray[i] = thin
-    }
-    console.log('[计算耗时]', formatPerformanceTime(performance.now() - start))
-    return { indexArray, indexMap }
-  })
+  const indexList = computedAsync(async (onCancel) => {
+    const markerData = toRaw(data.value)
+    if (!markerData || !(markerData instanceof ArrayBuffer)) return []
+    let expried = false
+    onCancel(() => {
+      expried = true
+    })
+    const worker = ensureWorker()
+    const res = await invokeWorker<MarkerDecodeInput, MarkerDecodeOutput>(worker, markerData, {
+      timeout: 30_000,
+      transfer: [markerData],
+    })
+    if (expried) return []
+    return res
+  }, [])
 
   return {
-    indexList: computed(() => toRaw(markerSet.value.indexArray)),
-    indexMap: computed(() => toRaw(markerSet.value.indexMap)),
+    indexList: indexList as Readonly<ShallowRef<MarkerThin[]>>,
   }
 })
