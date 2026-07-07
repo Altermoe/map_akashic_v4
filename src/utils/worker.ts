@@ -39,6 +39,8 @@ export interface InvokeWorkerOptions {
   signal?: AbortSignal
   /** 进度回调，接收 worker 汇报的进度值 */
   onProgress?: (value: number, message?: string) => void
+  /** 可转移对象列表，随请求一并发送给 worker */
+  transfer?: Transferable[]
 }
 
 /**
@@ -126,11 +128,14 @@ export function invokeWorker<Input, Output>(
       }, options.timeout)
     }
 
-    worker.postMessage({
-      type: 'request',
-      id: requestId,
-      data: payload,
-    } satisfies Extract<WorkerMessage<Input, Output>, { type: 'request' }>)
+    worker.postMessage(
+      {
+        type: 'request',
+        id: requestId,
+        data: payload,
+      } satisfies Extract<WorkerMessage<Input, Output>, { type: 'request' }>,
+      options?.transfer ?? [],
+    )
 
     if (signal?.aborted) abort()
   })
