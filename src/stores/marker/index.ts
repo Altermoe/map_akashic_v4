@@ -10,6 +10,7 @@ import { invokeWorker } from '@/utils/worker'
 export interface MarkerThin {
   id: string
   name: string
+  icon: string
   pos: readonly [x: number, y: number]
 }
 

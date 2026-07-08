@@ -1,3 +1,4 @@
+import { computedAsync, useObjectUrl } from '@vueuse/core'
 import { useRequest } from 'alova/client'
 import { defineStore } from 'pinia'
 import { acceptHMRUpdate } from 'pinia'
@@ -29,17 +30,6 @@ const generateCacheKey = (
   return JSON.stringify(keyData)
 }
 
-const imageBitmapToBlob = async (bitmap: ImageBitmap): Promise<Blob> => {
-  const canvas = new OffscreenCanvas(bitmap.width, bitmap.height)
-  const ctx = canvas.getContext('2d')!
-  ctx.drawImage(bitmap, 0, 0)
-  return canvas.convertToBlob({ type: 'image/png' })
-}
-
-const blobToImageBitmap = async (blob: Blob): Promise<ImageBitmap> => {
-  return createImageBitmap(blob)
-}
-
 const render = async (
   iconList: IconVo[],
   onProgress?: (value: number, message?: string) => void,
@@ -68,8 +58,7 @@ const render = async (
     const cached = await db.kv.get(dbKey)
     if (cached) {
       const { textureBlob, mapping } = cached.value as CachedRenderResult
-      const texture = await blobToImageBitmap(textureBlob)
-      return { texture, mapping }
+      return { texture: textureBlob, mapping }
     }
   } catch {}
 
@@ -83,9 +72,8 @@ const render = async (
   )
 
   try {
-    const textureBlob = await imageBitmapToBlob(res.texture)
     const cachedResult: CachedRenderResult = {
-      textureBlob,
+      textureBlob: res.texture,
       mapping: res.mapping,
     }
     await db.kv.put(
@@ -122,8 +110,10 @@ export const useIconStore = defineStore('icon', () => {
   const rendering = ref(false)
   const progressValue = ref(0)
   const progressMessage = ref('')
-  const texture = ref<ImageBitmap | null>(null)
-  const mapping = ref<IconMapping | null>(null)
+  const texture = shallowRef<Blob | null>(null)
+  const mapping = shallowRef<IconMapping>({})
+
+  const textureUrl = useObjectUrl(texture)
 
   const runRender = async () => {
     rendering.value = true
@@ -157,6 +147,7 @@ export const useIconStore = defineStore('icon', () => {
     progressValue,
     progressMessage,
     texture,
+    textureUrl,
     mapping,
   }
 })

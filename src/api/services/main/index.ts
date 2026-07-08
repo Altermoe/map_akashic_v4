@@ -80,12 +80,8 @@ export const $$userConfigMap = withConfigType({
     transform: async (originResponse) => {
       const res = originResponse as unknown as Response
       const ds = new DecompressionStream('gzip')
-      const bytes = await new Response(res.body?.pipeThrough(ds)).bytes()
-      const value = kongying.MarkerVoList.decode(bytes).toJSON() as {
-        markers: ApiTypes.MarkerVo[]
-        users: Record<string, ApiTypes.SysUserSmallVo>
-      }
-      return value
+      const buffer = await new Response(res.body?.pipeThrough(ds)).arrayBuffer()
+      return buffer
     },
   },
 })

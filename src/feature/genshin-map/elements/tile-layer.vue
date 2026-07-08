@@ -3,6 +3,7 @@ export interface TileLayerProps {
   deck: Deck<OrthographicView>
   data: ResolvedTileset
   index: number
+  visible?: boolean
 }
 </script>
 
@@ -13,14 +14,16 @@ import { GenshinTileLayer } from '../layers/genshin-tile-layer'
 import type { ResolvedTileset } from '../types'
 import { removeLayerFrom, addLayerFrom } from '../utils'
 
-const props = defineProps<TileLayerProps>()
+const props = withDefaults(defineProps<TileLayerProps>(), {
+  visible: true,
+})
 
 onMounted(() => {
   let instance: GenshinTileLayer | null = null
 
   const { stop } = watchEffect(() => {
-    const { deck, data, index } = props
-    const layer = new GenshinTileLayer(data)
+    const { deck, data, index, visible } = props
+    const layer = new GenshinTileLayer(data, visible)
     addLayerFrom(deck, index, layer)
     layer.applyDeck(deck)
     instance = layer

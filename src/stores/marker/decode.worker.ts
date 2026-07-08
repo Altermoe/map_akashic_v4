@@ -16,6 +16,7 @@ handleRequest<MarkerDecodeInput, MarkerDecodeOutput>(({ data, send }) => {
       id: markerInfo.id.toNumber(),
       name: markerInfo.markerTitle,
       pos: [Number(sx), Number(sy)],
+      icon: `${markerInfo.itemList?.[0].iconId.toNumber() ?? -1}`,
     }
   }
   send(thinList)

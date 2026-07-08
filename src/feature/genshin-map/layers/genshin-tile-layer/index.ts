@@ -11,6 +11,7 @@ const ZOOM_MAPPING = 13
 
 export interface GenshinTileLayerProps {
   data: ResolvedTileset
+  visible: boolean
   bounds: [min: [number, number], max: [number, number]]
   initViewState: {
     target: [number, number]
@@ -63,12 +64,13 @@ const getTileUrl = (data: ResolvedTileset, index: TileIndex): string => {
   return url
 }
 
-const createTileLayer = (tileset: ResolvedTileset) => {
+const createTileLayer = (tileset: ResolvedTileset, visible: boolean) => {
   const { xmax, xmin, ymax, ymin } = getExtent(tileset)
 
   const tileLayer = new TileLayer<TileData | null>({
     id: `TileLayer(${tileset.pathId})`,
     data: null,
+    visible,
     minZoom: -3,
     maxZoom: 0,
     tileSize: 256,
@@ -130,11 +132,12 @@ export class GenshinTileLayer
 
   static #instance: GenshinTileLayer | null = null
 
-  constructor(data: ResolvedTileset) {
+  constructor(data: ResolvedTileset, visible = true) {
     const { xmax, xmin, ymax, ymin } = getExtent(data)
     super({
       id: 'GenshinTileLayer',
       data,
+      visible,
       bounds: [
         [xmin, ymin],
         [xmax, ymax],
@@ -151,7 +154,7 @@ export class GenshinTileLayer
   }
 
   override renderLayers() {
-    return createTileLayer(this.props.data)
+    return createTileLayer(this.props.data, this.props.visible)
   }
 
   applyDeck(deck: GenshinDeck) {

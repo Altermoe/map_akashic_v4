@@ -28,7 +28,7 @@ interface Layout {
 }
 
 export interface RenderResult {
-  texture: ImageBitmap
+  texture: Blob
   mapping: IconMapping
 }
 
@@ -466,8 +466,8 @@ handleRequest<RenderRequest, RenderResult>(
     posBuffer.destroy()
     uvBuffer.destroy()
 
-    const texture = canvas.transferToImageBitmap()
+    const texture = await canvas.convertToBlob({ type: 'image/png' })
     progress(100, '渲染完成')
-    send({ texture, mapping }, [texture])
+    send({ texture, mapping })
   },
 )

@@ -1,8 +1,11 @@
 <script lang="ts">
+import type { IconMapping } from '../layers/genshin-marker-layer/index'
 export interface MarkerLayerProps {
   deck: Deck<OrthographicView>
   data: GenshinMarkerLayerProps['data']
   positionOffset?: GenshinMarkerLayerProps['positionOffset']
+  iconAtlas?: string
+  iconMapping: IconMapping
   index: number
 }
 </script>
@@ -28,10 +31,11 @@ onMounted(() => {
   let instance: GenshinMarkerLayer | null = null
 
   const { stop } = watchEffect(() => {
-    const { deck, data, index, positionOffset } = props
     const layer = new GenshinMarkerLayer({
-      data,
-      positionOffset,
+      data: props.data,
+      positionOffset: props.positionOffset,
+      iconAtlas: props.iconAtlas,
+      iconMapping: props.iconMapping,
       onClick: (info, event) => {
         if (!info.layer || !info.object) return
         console.log({ info, event })
@@ -54,7 +58,7 @@ onMounted(() => {
         emits('dragStart', info.object)
       },
     })
-    addLayerFrom(deck, index, layer)
+    addLayerFrom(props.deck, props.index, layer)
     instance = layer
   })
 
