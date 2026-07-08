@@ -1,12 +1,5 @@
-<svg
-  xmlns="http://www.w3.org/2000/svg"
-  width="64"
-  height="64"
-  viewBox="0 0 100 100"
-  fill="none"
-  vector-effect="non-scaling-stroke"
-  style="--color-a: #22222240; --color-b: #FFF"
->
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 100 100" fill="none"
+  vector-effect="non-scaling-stroke">
   <defs>
     <mask id="marker-container-mask-1">
       <polygon points="13,50 88,50 50,100" fill="white" />
@@ -14,24 +7,16 @@
     </mask>
     <mask id="marker-container-mask-2">
       <polygon points="0,0 100,0 100,100 0,100" fill="white" />
-      <circle cx="50" cy="50" r="30" fill="black" />
+      <circle cx="50" cy="50" r="27" fill="black" />
     </mask>
   </defs>
-  <g fill="var(--color-a)">
+  <g fill="#33333360">
     <circle cx="50" cy="50" r="39" />
     <polygon points="0,50 100,50 100,100 0,100" mask="url(#marker-container-mask-1)" />
-    <g fill="var(--color-b)" mask="url(#marker-container-mask-2)">
-      <circle
-        cx="50"
-        cy="50"
-        r="39"
-        transform="translate(50,50) scale(0.95) translate(-50,-50)"
-      />
-      <polygon
-        points="0,50 100,50 100,100 0,100"
-        mask="url(#marker-container-mask-1)"
-        transform="translate(50,40) scale(0.95) translate(-50,-40)"
-      />
+    <g fill="#FFF" mask="url(#marker-container-mask-2)">
+      <circle cx="50" cy="50" r="39" transform="translate(50,50) scale(0.95) translate(-50,-50)" />
+      <polygon points="0,50 100,50 100,100 0,100" mask="url(#marker-container-mask-1)"
+        transform="translate(50,40) scale(0.95) translate(-50,-40)" />
     </g>
   </g>
 </svg>

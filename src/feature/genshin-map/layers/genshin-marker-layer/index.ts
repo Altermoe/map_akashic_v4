@@ -41,7 +41,7 @@ class MixtureIconLayer extends IconLayer<MarkerThin, MixtureIconLayerProps> {
     ...IconLayer.defaultProps,
     bottomMask: 0,
     topMask: 0,
-    iconScale: 0.6,
+    iconScale: 0.54,
     iconTranslate: [0, 0] as [number, number],
   }
 
@@ -191,17 +191,17 @@ export class GenshinMarkerLayer extends CompositeLayer<GenshinMarkerLayerProps> 
     return [
       !iconAtlas
         ? this.#createPlaceholderLayer({
-            data,
-            offset: positionOffset,
-          })
+          data,
+          offset: positionOffset,
+        })
         : null,
       iconAtlas
         ? this.#createMarkerLayer({
-            data,
-            iconAtlas,
-            iconMapping,
-            offset: positionOffset,
-          })
+          data,
+          iconAtlas,
+          iconMapping,
+          offset: positionOffset,
+        })
         : null,
     ]
   }
