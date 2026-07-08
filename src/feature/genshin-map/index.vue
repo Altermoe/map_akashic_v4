@@ -18,7 +18,7 @@ const iconStore = useIconStore()
 
 <template>
   <DeckGl :views="view" v-slot="{ deck }">
-    <TileLayer :deck="deck" :index="0" :data="tileset" :visible="false" />
+    <TileLayer :deck="deck" :index="0" :data="tileset" />
     <MarkerLayer
       :deck="deck"
       :index="1"
