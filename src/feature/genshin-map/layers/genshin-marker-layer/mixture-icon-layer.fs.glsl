@@ -1,79 +1,74 @@
 #version 300 es
 #define SHADER_NAME icon-layer-fragment-shader
 
-// MixtureIconLayer 自定义 fragment shader
-// 替代 IconLayer 默认 fragment shader,实现:
-// 1. 原始纹理经过 vertex shader 计算的 vMixtureTextureCoords 采样
-// 2. 按"bottomMask 状态 → 原始纹理 → topMask 状态"的层级混合
-// 状态纹理位于 iconAtlas 首行,数量上限为 MIXTURE_MAX_STATE_BITS (8 个,见 getShaders 中的 defines)
-//
-// 注意: mixture* uniforms 由 mixtureUniforms 模块的 std140 block `mixture` 注入
-//       访问方式为 mixture.mixtureXxx(luma.gl 自动将 module props 映射到 block 字段)
-//       vMixtureStateCoords 数组大小由 defines: { MIXTURE_MAX_STATE_BITS: 8 } 控制
-
 precision highp float;
-// 关键: std140 uniform block 中的 int 成员(mixtureBottomMask / mixtureTopMask)
-// 必须在 fragment shader 显式声明 highp,否则 GLSL ES 默认 mediump
-// 会与 vertex shader 的 highp 不一致,触发 WebGL link error:
-// "Precisions of uniform block 'mixtureUniforms' member ... differ between VERTEX and FRAGMENT shaders."
 precision highp int;
 
 uniform sampler2D iconsTexture;
 
 in float vColorMode;
 in vec4 vColor;
-in vec2 vTextureCoords; // 由 vertex shader 默认声明,此处作为 in 保留(实际未使用)
+in vec2 vTextureCoords;
 in vec2 uv;
 
-// 来自 vertex shader 注入的 varying
-in vec2 vMixtureTextureCoords; // 缩放+平移后的原始纹理 UV
-in vec2 vMixtureUV; // sprite-local 缩放+平移后的 UV,用于越界判断
-in vec2 vMixtureStateCoords[MIXTURE_MAX_STATE_BITS]; // 每个状态纹理在当前 fragment 处的 UV
+in vec2 vMixtureTextureCoords;
+in vec2 vMixtureUV;
+in vec2 vMixtureStateCoords[MIXTURE_MAX_STATE_BITS];
 
 out vec4 fragColor;
 
 void main(void) {
   geometry.uv = uv;
 
-  // 1. 采样经过 scale + translate 的原始图标
-  //    当 vMixtureUV 超出 [0, 1] 时(iconScale < 1 导致越界),
-  //    跳过采样以避免读到 atlas 中相邻精灵的纹理
-  vec4 originalColor;
-  if (all(greaterThanEqual(vMixtureUV, vec2(0.0))) && all(lessThanEqual(vMixtureUV, vec2(1.0)))) {
-    originalColor = texture(iconsTexture, vMixtureTextureCoords);
-  } else {
-    originalColor = vec4(0.0);
-  }
+  // ==========================================
+  // 1. 消除 originalColor 的 UV 越界判断 if
+  // ==========================================
+  // step(edge, x): x >= edge ? 1.0 : 0.0
+  // 结合 4 个边界的 step 结果，如果都在 [0, 1] 范围内，乘积为 1.0，否则为 0.0
+  vec4 inBounds = step(vec4(0.0, 0.0, vMixtureUV), vec4(vMixtureUV, 1.0, 1.0));
+  float isSafe = inBounds.x * inBounds.y * inBounds.z * inBounds.w;
 
-  // 2. 按 z-order 混合:bottomMask 状态(底) → 原始纹理(中) → topMask 状态(顶)
+  // 始终进行采样（避免分支），通过乘法将越界像素直接抹成透明 vec4(0.0)
+  vec4 originalColor = texture(iconsTexture, vMixtureTextureCoords) * isSafe;
+
+  // 2. 按 z-order 混合: bottomMask → 原始纹理 → topMask
   vec4 texColor = vec4(0.0);
 
-  // 2a. bottomMask 状态纹理 — 位于最底层
+  // ==========================================
+  // 2a. 消除 bottomMask 循环体内的 if
+  // ==========================================
   for (int i = 0; i < MIXTURE_MAX_STATE_BITS; ++i) {
-    if ((mixture.mixtureBottomMask >> i & 1) == 1) {
-      vec4 stateColor = texture(iconsTexture, vMixtureStateCoords[i]);
-      texColor = mix(texColor, stateColor, stateColor.a);
-    }
+    // 提取位掩码状态：通过乘法或位移转为 float (0.0 或 1.0)
+    float maskActive = float((mixture.mixtureBottomMask >> i) & 1);
+
+    // 始终执行采样，通过 maskActive 控制该状态的有效性
+    vec4 stateColor = texture(iconsTexture, vMixtureStateCoords[i]);
+
+    // 如果 maskActive 为 0，混合系数变为 0，即不产生任何混合效果（保持 texColor）
+    texColor = mix(texColor, stateColor, stateColor.a * maskActive);
   }
 
-  // 2b. 原始纹理 — 位于中间
+  // 2b. 原始纹理混合
   texColor = mix(texColor, originalColor, originalColor.a);
 
-  // 2c. topMask 状态纹理 — 位于最顶层
+  // ==========================================
+  // 2c. 消除 topMask 循环体内的 if
+  // ==========================================
   for (int i = 0; i < MIXTURE_MAX_STATE_BITS; ++i) {
-    if ((mixture.mixtureTopMask >> i & 1) == 1) {
-      vec4 stateColor = texture(iconsTexture, vMixtureStateCoords[i]);
-      texColor = mix(texColor, stateColor, stateColor.a);
-    }
+    float maskActive = float((mixture.mixtureTopMask >> i) & 1);
+    vec4 stateColor = texture(iconsTexture, vMixtureStateCoords[i]);
+    texColor = mix(texColor, stateColor, stateColor.a * maskActive);
   }
 
-  // 3. 沿用 IconLayer 的颜色模式与 alpha 计算
-  // if colorMode == 0, use pixel color from the texture
-  // if colorMode == 1 or rendering picking buffer, use texture as transparency mask
+  // 3. 颜色与 Alpha 计算
   vec3 color = mix(texColor.rgb, vColor.rgb, vColorMode);
-  // Take the global opacity and the alpha from vColor into account for the alpha component
   float a = texColor.a * layer.opacity * vColor.a;
 
+  // ==========================================
+  // 注：这里的 alphaCutoff discard 建议保留
+  // ==========================================
+  // 虽然可以用类似 alpha 覆盖的方式规避，但对于混合/透明度图层，
+  // 显式 discard 可以让 GPU 尽早结束当前像素流，提升早阶深度测试（Early-Z）效率。
   if (a < icon.alphaCutoff) {
     discard;
   }
