@@ -4,3 +4,12 @@ export { useUrlSearchStore } from './url-search'
 export { useIconStore } from './icon'
 export { useMarkerStore } from './marker'
 export { useAreaStore } from './area'
+export { useAsyncStore } from './async'
+export type {
+  AsyncTask,
+  AsyncTaskStatus,
+  AsyncCreateInput,
+  AsyncUpdatePatch,
+  AsyncRunOptions,
+  AsyncReport,
+} from './async'
