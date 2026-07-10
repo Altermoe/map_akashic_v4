@@ -186,22 +186,21 @@ export class GenshinMarkerLayer extends CompositeLayer<GenshinMarkerLayerProps> 
   }
 
   override renderLayers(): Layer | null | LayersList {
-    console.log('renderLayers')
     const { data, iconAtlas, iconMapping, positionOffset = DEFAULT_POSITION } = this.props
     return [
       !iconAtlas
         ? this.#createPlaceholderLayer({
-          data,
-          offset: positionOffset,
-        })
+            data,
+            offset: positionOffset,
+          })
         : null,
       iconAtlas
         ? this.#createMarkerLayer({
-          data,
-          iconAtlas,
-          iconMapping,
-          offset: positionOffset,
-        })
+            data,
+            iconAtlas,
+            iconMapping,
+            offset: positionOffset,
+          })
         : null,
     ]
   }

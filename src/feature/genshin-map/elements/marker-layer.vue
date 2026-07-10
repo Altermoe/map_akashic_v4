@@ -36,9 +36,8 @@ onMounted(() => {
       positionOffset: props.positionOffset,
       iconAtlas: props.iconAtlas,
       iconMapping: props.iconMapping,
-      onClick: (info, event) => {
+      onClick: (info) => {
         if (!info.layer || !info.object) return
-        console.log({ info, event })
         emits('click', info.object)
       },
       onHover: (info) => {
