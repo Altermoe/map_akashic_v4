@@ -1,6 +1,9 @@
 # builds
 dist
 
+# trae todos
+.trae/documents
+
 # deps
 node_modules
 
