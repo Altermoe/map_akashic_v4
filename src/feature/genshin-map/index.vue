@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { OrthographicView } from 'deck.gl'
 import { useMarkerStore, useIconStore } from '@/stores'
+import { SiderToolbar } from './components'
 import DeckGl from './elements/deck-gl.vue'
 import MarkerLayer from './elements/marker-layer.vue'
 import TileLayer from './elements/tile-layer.vue'
@@ -18,6 +19,7 @@ const iconStore = useIconStore()
 
 <template>
   <DeckGl :views="view" v-slot="{ deck }">
+    <SiderToolbar />
     <TileLayer :deck="deck" :index="0" :data="tileset" />
     <MarkerLayer
       :deck="deck"
