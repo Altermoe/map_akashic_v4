@@ -23,7 +23,6 @@ onMounted(() => {
   const deck = new Deck<ViewT>({
     canvas,
     views: props.views,
-    pickAsync: 'async',
     // 性能优化: 视口变化期间禁用 pick 以提高帧率
     onInteractionStateChange: (state) => {
       const changing = Boolean(
