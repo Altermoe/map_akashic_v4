@@ -47,9 +47,6 @@ export interface AsyncReport {
   readonly signal: AbortSignal
 }
 
-/** 成功 / 取消状态的任务在多少毫秒后自动移除 */
-const AUTO_REMOVE_DELAY_MS = 3000
-
 const generateId = () => {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
     return crypto.randomUUID()
@@ -136,9 +133,6 @@ const toErrorMessage = (err: unknown) => {
 export const useAsyncStore = defineStore('async', () => {
   const tasks = ref(new Map<string, AsyncTask>())
 
-  /** 关联的自动移除定时器句柄，不放到 AsyncTask 里避免污染响应式结构 */
-  const autoRemoveTimers = new Map<string, ReturnType<typeof setTimeout>>()
-
   const list = computed<AsyncTask[]>(() =>
     [...tasks.value.values()].sort((a, b) => a.createdAt - b.createdAt),
   )
@@ -161,23 +155,6 @@ export const useAsyncStore = defineStore('async', () => {
   })
 
   const hasVisibleTasks = computed(() => tasks.value.size > 0)
-
-  const clearAutoRemoveTimer = (id: string) => {
-    const timer = autoRemoveTimers.get(id)
-    if (timer !== undefined) {
-      clearTimeout(timer)
-      autoRemoveTimers.delete(id)
-    }
-  }
-
-  const scheduleAutoRemove = (id: string) => {
-    clearAutoRemoveTimer(id)
-    const timer = setTimeout(() => {
-      autoRemoveTimers.delete(id)
-      remove(id)
-    }, AUTO_REMOVE_DELAY_MS)
-    autoRemoveTimers.set(id, timer)
-  }
 
   const create = (input: AsyncCreateInput) => {
     const id = input.id ?? generateId()
@@ -232,7 +209,6 @@ export const useAsyncStore = defineStore('async', () => {
     const prev = tasks.value.get(id)
     if (!prev) return
     patchTask(id, { status: 'success', progress: 1, error: undefined })
-    scheduleAutoRemove(id)
   }
 
   const fail = (id: string, error: unknown) => {
@@ -246,11 +222,9 @@ export const useAsyncStore = defineStore('async', () => {
     if (!prev) return
     prev.controller?.abort()
     patchTask(id, { status: 'cancelled' })
-    scheduleAutoRemove(id)
   }
 
   const remove = (id: string) => {
-    clearAutoRemoveTimer(id)
     if (!tasks.value.has(id)) return
     const next = new Map(tasks.value)
     next.delete(id)
@@ -261,7 +235,6 @@ export const useAsyncStore = defineStore('async', () => {
     const next = new Map(tasks.value)
     for (const [id, task] of tasks.value) {
       if (task.status !== 'running' && task.status !== 'pending') {
-        clearAutoRemoveTimer(id)
         next.delete(id)
       }
     }
