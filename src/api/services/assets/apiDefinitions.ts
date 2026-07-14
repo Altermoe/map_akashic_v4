@@ -22,6 +22,8 @@ const openDir = (
   /** @example 'tileset/tile_twt64/10' */
   path: string,
 ) => {
+  const cached = cachedDirHandles.get(path)
+  if (cached) return cached
   const segments = path
     .replace(/^[a-z]+:\/\//i, '')
     .split('/')
@@ -29,7 +31,7 @@ const openDir = (
   if (segments.length === 0) return root
   const dirPromise = (async () => {
     let currentHandle = await root
-    for await (const segment of segments) {
+    for (const segment of segments) {
       currentHandle = await currentHandle.getDirectoryHandle(segment, { create: true })
     }
     return currentHandle
@@ -105,8 +107,13 @@ export const getTile = async (
   const dir = await openDir(path)
   const cache = await dir.getFileHandle(filename).catch(() => null)
   if (cache) {
-    const file = await cache.getFile()
-    return createImageBitmap(file)
+    try {
+      const file = await cache.getFile()
+      return await createImageBitmap(file)
+    } catch {
+      // 缓存文件可能因写入竞态而损坏，删除后回退到网络请求
+      await dir.removeEntry(filename).catch(() => {})
+    }
   }
 
   // 缓存 miss 的情况
