@@ -32,6 +32,10 @@ const sider = defineModel<MENU_KEYS | null>('sider', {
   default: MENU_KEYS.FILTER,
 })
 
+const isMainPanelCollapsed = computed(() => {
+  return collapsed.value || !sider.value
+})
+
 const menuConfigMap = computed<Record<MENU_KEYS, MenuConfig>>(() => ({
   [MENU_KEYS.FILTER]: {
     label: t('filter'),
@@ -69,7 +73,7 @@ const toggleMenu = (key: MENU_KEYS) => {
 
 <template>
   <div
-    class="sider-toolbar sider-toolbar-vars fixed top-0 left-0 w-[min(100dvw,24rem)] h-100dvh z-1"
+    class="sider-toolbar sider-toolbar-vars fixed top-0 left-0 w-[min(100dvw,24rem)] h-100dvh z-1 pointer-events-none"
   >
     <CollapseButton class="pointer-events-auto" v-model:collapsed="collapsed" />
 
@@ -117,7 +121,7 @@ const toggleMenu = (key: MENU_KEYS) => {
         'absolute top-0 left-[var(--tap-width)]',
         'w-80 h-full flex flex-col',
         'bg-[--bg-level-2] border-r-1 border-[--border-color]',
-        collapsed ? 'is-collapsed' : 'pointer-events-auto',
+        isMainPanelCollapsed ? 'is-collapsed' : 'pointer-events-auto',
         sider ? 'is-selected' : '',
       ]"
     >
