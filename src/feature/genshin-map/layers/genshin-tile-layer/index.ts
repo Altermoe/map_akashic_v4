@@ -101,7 +101,11 @@ const createTileLayer = (tileset: ResolvedTileset, visible: boolean) => {
           image: bmp,
           url,
         } as TileData
-      } catch {
+      } catch (err) {
+        // 重新抛出 abort 错误，让 deck.gl 通过 _isCancelled 机制正确处理
+        if (signal?.aborted) {
+          throw err
+        }
         return null
       }
     },
