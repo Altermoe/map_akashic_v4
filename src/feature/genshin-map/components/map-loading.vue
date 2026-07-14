@@ -69,7 +69,10 @@ const icons = [
   width: 32px;
   height: 32px;
   animation: icon-pulse 1.4s ease-in-out infinite;
-  filter: drop-shadow(0 2px 8px oklch(0.6 0.15 50 / 0.3));
+  filter:
+    drop-shadow(0 0 1px light-dark(oklch(0.2 0 0 / 0.45), transparent))
+    drop-shadow(0 0 1px light-dark(oklch(0.2 0 0 / 0.45), transparent))
+    drop-shadow(0 2px 8px oklch(0.6 0.15 50 / 0.3));
 }
 
 .loading-text {
