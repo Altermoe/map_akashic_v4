@@ -1,5 +1,5 @@
 # 默认让 Git 自动检测文本文件，但不要对所有文件一刀切
-* text=auto
+* text=auto eol=lf
 
 # 显式声明二进制文件（绝对不要进行换行符转换）
 *.png binary
