@@ -1,6 +1,17 @@
-* auto eol=lf
+# 默认让 Git 自动检测文本文件，但不要对所有文件一刀切
+* text=auto
 
-# 覆盖行终止符
+# 显式声明二进制文件（绝对不要进行换行符转换）
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+
+# 覆盖特定文本文件的行终止符
 *.svg text eol=lf
 *.vue text eol=lf
 *.ts text eol=lf
