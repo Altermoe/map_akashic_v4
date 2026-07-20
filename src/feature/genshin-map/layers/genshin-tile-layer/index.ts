@@ -183,7 +183,7 @@ export class GenshinTileLayer
       },
       initialViewState: {
         ...this.props.initViewState,
-        maxZoom: 0,
+        maxZoom: 2,
         minZoom: -4,
         transitionEasing: easeOutQuart,
         transitionDuration: 500,
