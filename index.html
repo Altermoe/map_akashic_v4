@@ -6,6 +6,99 @@
     <title>%VITE_APP_TITLE%</title>
     <link rel="stylesheet" href="./src/styles/index.css" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <style>
+      /* 错误兜底 UI - 自包含样式，不依赖外部 CSS */
+      #app-error {
+        position: fixed;
+        inset: 0;
+        display: grid;
+        place-content: center;
+        place-items: center;
+        padding: 24px;
+        background: light-dark(#fafafa, #1a1a1a);
+        color: light-dark(#333, #e0e0e0);
+        color-scheme: light dark;
+        font-family:
+          system-ui,
+          -apple-system,
+          'Segoe UI',
+          Roboto,
+          'Helvetica Neue',
+          Arial,
+          sans-serif;
+        overflow: auto;
+      }
+      .error-card {
+        max-width: 640px;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .error-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: light-dark(oklch(0.65 0.22 25), oklch(0.7 0.2 25));
+        color: #fff;
+        display: grid;
+        place-content: center;
+        flex-shrink: 0;
+      }
+      .error-title {
+        font-size: 20px;
+        font-weight: 600;
+        margin: 0;
+      }
+      .error-desc {
+        margin: 0;
+        line-height: 1.6;
+        color: light-dark(#666, #aaa);
+        font-size: 14px;
+      }
+      .error-stack {
+        margin: 0;
+        padding: 16px;
+        background: light-dark(#f0f0f0, #2a2a2a);
+        border: 1px solid light-dark(#e0e0e0, #3a3a3a);
+        border-radius: 8px;
+        font-family:
+          'Cascadia Code', 'Fira Code', 'JetBrains Mono', Consolas, 'Courier New', monospace;
+        font-size: 12px;
+        line-height: 1.5;
+        max-height: 320px;
+        overflow: auto;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+      .error-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .error-btn {
+        padding: 8px 16px;
+        border: 1px solid light-dark(#ddd, #444);
+        background: light-dark(#fff, #2a2a2a);
+        color: light-dark(#333, #eee);
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        font-family: inherit;
+        transition: background 0.15s;
+      }
+      .error-btn:hover {
+        background: light-dark(#f0f0f0, #333);
+      }
+      .error-btn-primary {
+        background: light-dark(oklch(0.63 0.16 52.36), oklch(0.86 0.12 76.43));
+        color: light-dark(#fff, #1a1a1a);
+        border-color: transparent;
+      }
+      .error-btn-primary:hover {
+        background: light-dark(oklch(0.55 0.16 52.36), oklch(0.9 0.1 76.43));
+      }
+    </style>
   </head>
   <body class="grid">
     <!-- 首屏 loading -->
@@ -38,11 +131,75 @@
         }),
         // 至少等待 loading 动画播放完毕后才进入应用
         firstLoadingAnimation,
-      ]).then(() => {
-        loadingContainer.classList.toggle('exit', true)
-        loadingContainer.classList.toggle('pointer-events-none', true)
-        app.classList.remove('hidden')
-      })
+      ])
+        .then(() => {
+          loadingContainer.classList.toggle('exit', true)
+          loadingContainer.classList.toggle('pointer-events-none', true)
+          app.classList.remove('hidden')
+        })
+        .catch((error) => {
+          loadingContainer.classList.toggle('exit', true)
+          loadingContainer.classList.toggle('pointer-events-none', true)
+
+          // 收集完整错误信息（含堆栈），便于用户检索与反馈
+          const errorStack =
+            error instanceof Error
+              ? error.stack || `${error.name}: ${error.message}`
+              : (() => {
+                  try {
+                    return `Non-Error: ${JSON.stringify(error, null, 2)}`
+                  } catch {
+                    return `Non-Error: ${String(error)}`
+                  }
+                })()
+
+          const escapeHtml = (str) =>
+            str
+              .replace(/&/g, '&amp;')
+              .replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;')
+              .replace(/"/g, '&quot;')
+              .replace(/'/g, '&#39;')
+
+          app.classList.remove('hidden')
+          app.innerHTML = `
+            <div id="app-error">
+              <div class="error-card">
+                <div class="error-icon">
+                  <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="8" x2="12" y2="12" />
+                    <line x1="12" y1="16" x2="12.01" y2="16" />
+                  </svg>
+                </div>
+                <h1 class="error-title">应用加载失败</h1>
+                <p class="error-desc">应用在初始化过程中遇到问题。请将下方完整错误信息复制并反馈给开发者，或通过搜索引擎检索解决方案。</p>
+                <pre class="error-stack">${escapeHtml(errorStack)}</pre>
+                <div class="error-actions">
+                  <button type="button" class="error-btn error-btn-primary" id="error-copy">复制错误信息</button>
+                  <button type="button" class="error-btn" id="error-reload">刷新重试</button>
+                </div>
+              </div>
+            </div>
+          `
+
+          const copyBtn = document.getElementById('error-copy')
+          copyBtn.addEventListener('click', async () => {
+            try {
+              await navigator.clipboard.writeText(errorStack)
+              copyBtn.textContent = '已复制'
+              setTimeout(() => (copyBtn.textContent = '复制错误信息'), 2000)
+            } catch {
+              // clipboard API 不可用时，选中文本供用户手动复制
+              const range = document.createRange()
+              range.selectNode(document.querySelector('.error-stack'))
+              const selection = window.getSelection()
+              selection?.removeAllRanges()
+              selection?.addRange(range)
+            }
+          })
+          document.getElementById('error-reload').addEventListener('click', () => location.reload())
+        })
     </script>
   </body>
 </html>
