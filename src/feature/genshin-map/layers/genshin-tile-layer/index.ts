@@ -1,8 +1,10 @@
-import { CompositeLayer, TileLayer, BitmapLayer } from 'deck.gl'
+import { CompositeLayer, TileLayer, BitmapLayer, LayerContext } from 'deck.gl'
 import Api from '@/api'
 import type { GenshinDeck } from '../../core/genshin-deck'
 import type { ResolvedTileset } from '../../types'
 import { GenshinLayer } from '../../types'
+import { onReady } from '../../utils'
+import { easeOutQuart } from '../../utils/transition-easing'
 
 /** 符合 Genshin Tileset 格式的资源地址 */
 const BASE_URL = import.meta.env.VITE_SERVICE_RESOURCE_URL
@@ -134,8 +136,6 @@ export class GenshinTileLayer
 {
   static layerName = 'GenshinTileLayer'
 
-  static #instance: GenshinTileLayer | null = null
-
   constructor(data: ResolvedTileset, visible = true) {
     const { xmax, xmin, ymax, ymin } = getExtent(data)
     super({
@@ -151,17 +151,27 @@ export class GenshinTileLayer
         zoom: data.settings?.zoom ?? -1,
       },
     })
-    if (GenshinTileLayer.#instance) {
-      GenshinTileLayer.#instance._finalize()
-    }
-    GenshinTileLayer.#instance = this
   }
+
+  #rIC: number | null = null
 
   override renderLayers() {
     return createTileLayer(this.props.data, this.props.visible)
   }
 
-  applyDeck(deck: GenshinDeck) {
+  finalizeState(context: LayerContext): void {
+    super.finalizeState(context)
+    if (this.#rIC) {
+      cancelIdleCallback(this.#rIC)
+    }
+  }
+
+  async applyDeck(deck: GenshinDeck) {
+    await onReady(deck, {
+      onSchedulerUpdate: (rIC) => {
+        this.#rIC = rIC
+      },
+    })
     deck.setProps({
       controller: {
         dragMode: 'pan',
@@ -169,10 +179,13 @@ export class GenshinTileLayer
         inertia: 500,
         touchRotate: false,
         maxBounds: this.props.bounds,
+        scrollZoom: false,
       },
       initialViewState: {
         ...this.props.initViewState,
-        transitionEasing: (t) => 1 - (1 - t) ** 4,
+        maxZoom: 0,
+        minZoom: -4,
+        transitionEasing: easeOutQuart,
         transitionDuration: 500,
       },
     })
