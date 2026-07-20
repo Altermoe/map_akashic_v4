@@ -80,7 +80,7 @@ const createTileLayer = (tileset: ResolvedTileset, visible: boolean) => {
     refinementStrategy: 'best-available',
     maxCacheByteSize: Number.MAX_SAFE_INTEGER,
     maxCacheSize: 512 * 2 ** 20, // 512 MiB
-    maxRequests: navigator.hardwareConcurrency,
+    maxRequests: 64,
     getTileData: async ({ index, signal }) => {
       if (signal?.aborted) {
         return null
