@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { View } from 'deck.gl'
+import type { View } from '@deck.gl/core'
 
 export interface DeckGlProps<ViewT extends View> {
   view: ViewT
