@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { OrthographicView } from 'deck.gl'
+import { OrthographicView, type OrthographicViewState } from 'deck.gl'
 import { useMarkerStore, useIconStore } from '@/stores'
 import { SiderToolbar } from './components'
 import DeckGl from './elements/deck-gl.vue'
 import MarkerLayer from './elements/marker-layer.vue'
+import ScrollZoomController from './elements/scroll-zoom-controller.vue'
 import TileLayer from './elements/tile-layer.vue'
 import type { ResolvedTileset } from './types'
 
@@ -15,10 +16,23 @@ const view = new OrthographicView()
 
 const markerStore = useMarkerStore()
 const iconStore = useIconStore()
+
+const viewState = shallowRef<OrthographicViewState>({
+  target: [0, 0],
+  zoom: 0,
+})
+const syncViewStateChange = (state: OrthographicViewState) => {
+  viewState.value = state
+}
 </script>
 
 <template>
-  <DeckGl :views="view" v-slot="{ deck }">
+  <DeckGl
+    :view="view"
+    v-slot="{ deck, canvas }"
+    @view-state-change="(changes) => syncViewStateChange(changes.viewState)"
+  >
+    <ScrollZoomController :deck="deck" :view-state="viewState" :target="canvas" />
     <SiderToolbar />
     <TileLayer :deck="deck" :index="0" :data="tileset" />
     <MarkerLayer
