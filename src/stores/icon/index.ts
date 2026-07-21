@@ -1,10 +1,11 @@
-import { computedAsync, useObjectUrl } from '@vueuse/core'
+import { useObjectUrl } from '@vueuse/core'
 import { useRequest } from 'alova/client'
 import { defineStore } from 'pinia'
 import { acceptHMRUpdate } from 'pinia'
 import Api from '@/api'
 import type { IconVo } from '@/api/services/main/globals'
 import markerContainerIconUrl from '@/assets/marker-container.png?url'
+import markerOverlayPinIconUrl from '@/assets/marker-overlay-pin.png?url'
 import { db } from '@/database'
 import { invokeWorker } from '@/utils/worker'
 import type { RenderRequest, RenderResult, IconMapping } from './render.worker'
@@ -19,6 +20,16 @@ interface CachedRenderResult {
 }
 
 const CACHE_NAMESPACE = 'icon-render'
+const ICON_STATE: { key: string; url: string }[] = [
+  {
+    key: 'default',
+    url: markerContainerIconUrl,
+  },
+  {
+    key: 'overlay',
+    url: markerOverlayPinIconUrl,
+  },
+]
 
 const generateCacheKey = (
   iconList: { id: number; url: string }[],
@@ -44,14 +55,8 @@ const render = async (
     if (id === undefined || !url) continue
     sendList.push({ id, url })
   }
-  const state = [
-    {
-      key: 'default',
-      url: markerContainerIconUrl,
-    },
-  ]
 
-  const cacheKey = generateCacheKey(sendList, state)
+  const cacheKey = generateCacheKey(sendList, ICON_STATE)
   const dbKey = `${CACHE_NAMESPACE}:${cacheKey}`
 
   try {
@@ -66,7 +71,7 @@ const render = async (
     worker,
     {
       data: sendList,
-      state,
+      state: ICON_STATE,
     },
     { onProgress },
   )
