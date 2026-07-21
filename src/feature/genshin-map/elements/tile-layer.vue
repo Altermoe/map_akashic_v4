@@ -4,6 +4,8 @@ export interface TileLayerProps {
   data: ResolvedTileset
   index: number
   visible?: boolean
+  /** 是否启用开发者模式 */
+  debug?: TileLayerDebugOptions
 }
 </script>
 
@@ -11,6 +13,7 @@ export interface TileLayerProps {
 import type { Deck, OrthographicView } from 'deck.gl'
 import { Fragment } from 'vue'
 import { GenshinTileLayer } from '../layers/genshin-tile-layer'
+import type { TileLayerDebugOptions } from '../layers/genshin-tile-layer'
 import type { ResolvedTileset } from '../types'
 import { removeLayerFrom, addLayerFrom } from '../utils'
 
@@ -22,8 +25,8 @@ onMounted(() => {
   let instance: GenshinTileLayer | null = null
 
   const { stop } = watchEffect(() => {
-    const { deck, data, index, visible } = props
-    const layer = new GenshinTileLayer(data, visible)
+    const { deck, data, index, visible, debug } = props
+    const layer = new GenshinTileLayer(data, visible, debug)
     addLayerFrom(deck, index, layer)
     layer.applyDeck(deck)
     instance = layer
