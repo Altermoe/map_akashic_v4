@@ -3,6 +3,6 @@ import { AsyncTasksPopover } from '@/components/async-tasks-popover'
 </script>
 
 <template>
-  <router-view />
+  <RouterView />
   <AsyncTasksPopover />
 </template>
