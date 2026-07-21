@@ -50,11 +50,12 @@ watch(
       }
       return
     }
-    canvasSize.width = texture.width
-    canvasSize.height = texture.height
-    const canvas = new OffscreenCanvas(texture.width, texture.height)
+    const bmp = await createImageBitmap(texture)
+    canvasSize.width = bmp.width
+    canvasSize.height = bmp.height
+    const canvas = new OffscreenCanvas(bmp.width, bmp.height)
     const ctx = canvas.getContext('2d')!
-    ctx.drawImage(texture, 0, 0)
+    ctx.drawImage(bmp, 0, 0)
     const blob = await canvas.convertToBlob({ type: 'image/png' })
     const prev = imgUrl.value
     imgUrl.value = URL.createObjectURL(blob)
