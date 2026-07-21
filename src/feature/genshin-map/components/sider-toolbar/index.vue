@@ -24,7 +24,7 @@ const { t } = useI18n()
 
 const collapsed = defineModel<boolean>('collapsed', {
   required: false,
-  default: false,
+  default: true,
 })
 
 const sider = defineModel<MENU_KEYS | null>('sider', {
