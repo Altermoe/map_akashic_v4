@@ -1,5 +1,10 @@
 // MixtureIconLayer 的自定义 Shader Module
-// 用于将 iconScale / iconTranslate / bottomMask / topMask / iconGap 注入到 shader 中
+// 用于将 iconScale / iconTranslate / iconGap 注入到 shader 中
+//
+// 注意: bottomMask / topMask 不在本 uniform block 中 —— 它们是 per-instance
+// accessor 属性(getBottomMask / getTopMask),由 MixtureIconLayer.initializeState
+// 注册为实例属性 instanceBottomMask / instanceTopMask,在 vertex shader 中转为
+// flat varying vBottomMask / vTopMask 传入 fragment shader。
 //
 // 重要: luma.gl 的 WebGL2 设备通过 shader introspection 解析 uniform BLOCK
 // (而非 plain uniform),所以必须将 uniforms 包装到 layout(std140) block 中。
@@ -14,38 +19,28 @@
  * Mixture 模块的 props / uniforms 类型
  *
  * - 通过 model.shaderInputs.setProps({mixture: {...}}) 注入 uniform 值
- * - 在 fragment shader 中按"bottomMask 状态 → 原始纹理 → topMask 状态"的顺序混合
  * - 在 vertex shader 中基于 quadUV 计算缩放+平移后的 UV,以及各状态纹理的 UV
+ * - bottomMask / topMask 为 per-instance 属性,不在本 module 中(见文件头注释)
  */
 export type MixtureProps = {
   /** 缩放倍率 (0~2) */
   mixtureIconScale: number
   /** 平移偏移 (绝对像素) */
   mixtureIconTranslate: [number, number]
-  /** 底部状态纹理位掩码 */
-  mixtureBottomMask: number
-  /** 顶部状态纹理位掩码 */
-  mixtureTopMask: number
   /** 图标间距 (atlas 中的 gap,默认 1) */
   mixtureIconGap: number
 }
 
 // std140 布局说明:
 // - vec2 起始地址必须是 8 的倍数
-// - float/int 起始地址必须是 4 的倍数
-// 布局顺序: vec2 (offset 0) → 2*float (offset 8) → 2*int (offset 16)
-// 总大小: 24 字节,无尾部 padding
+// - float 起始地址必须是 4 的倍数
+// 布局顺序: vec2 (offset 0) -> 2*float (offset 8, 12)
+// 总大小: 16 字节,无尾部 padding
 const uniformBlock = /* glsl */ `
 layout(std140) uniform mixtureUniforms {
   vec2 mixtureIconTranslate;
   float mixtureIconScale;
   float mixtureIconGap;
-  // 显式声明 highp: luma.gl 将 module 的 vs/fs 注入到主 shader 时,
-  // uniform block 的声明位置早于主 shader 的 precision 语句,
-  // 因此 fragment shader 中 int 成员会使用 GLSL ES 默认的 mediump,
-  // 与 vertex shader 的 highp 不一致,触发 WebGL link error。
-  highp int mixtureBottomMask;
-  highp int mixtureTopMask;
 } mixture;
 `
 
@@ -65,14 +60,10 @@ export const mixtureUniforms = {
     mixtureIconTranslate: 'vec2<f32>',
     mixtureIconScale: 'f32',
     mixtureIconGap: 'f32',
-    mixtureBottomMask: 'i32',
-    mixtureTopMask: 'i32',
   },
   defaultUniforms: {
     mixtureIconTranslate: [0, 0] as [number, number],
     mixtureIconScale: 1,
     mixtureIconGap: 1,
-    mixtureBottomMask: 0,
-    mixtureTopMask: 0,
   },
 } as const

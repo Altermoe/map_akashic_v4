@@ -15,6 +15,10 @@ in vec2 vMixtureTextureCoords;
 in vec2 vMixtureUV;
 in vec2 vMixtureStateCoords[MIXTURE_MAX_STATE_BITS];
 
+// per-instance 掩码 (来自 vertex shader 的 flat varying,值为 0~255)
+flat in float vBottomMask;
+flat in float vTopMask;
+
 out vec4 fragColor;
 
 void main(void) {
@@ -39,7 +43,7 @@ void main(void) {
   // ==========================================
   for (int i = 0; i < MIXTURE_MAX_STATE_BITS; ++i) {
     // 提取位掩码状态：通过乘法或位移转为 float (0.0 或 1.0)
-    float maskActive = float((mixture.mixtureBottomMask >> i) & 1);
+    float maskActive = float((int(vBottomMask) >> i) & 1);
 
     // 始终执行采样，通过 maskActive 控制该状态的有效性
     vec4 stateColor = texture(iconsTexture, vMixtureStateCoords[i]);
@@ -55,7 +59,7 @@ void main(void) {
   // 2c. 消除 topMask 循环体内的 if
   // ==========================================
   for (int i = 0; i < MIXTURE_MAX_STATE_BITS; ++i) {
-    float maskActive = float((mixture.mixtureTopMask >> i) & 1);
+    float maskActive = float((int(vTopMask) >> i) & 1);
     vec4 stateColor = texture(iconsTexture, vMixtureStateCoords[i]);
     texColor = mix(texColor, stateColor, stateColor.a * maskActive);
   }

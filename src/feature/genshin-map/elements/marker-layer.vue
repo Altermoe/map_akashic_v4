@@ -7,6 +7,9 @@ export interface MarkerLayerProps {
   iconAtlas?: string
   iconMapping: IconMapping
   index: number
+  getBottomMask?: GenshinMarkerLayerProps['getBottomMask']
+  getTopMask?: GenshinMarkerLayerProps['getTopMask']
+  updateTriggers?: GenshinMarkerLayerProps['updateTriggers']
 }
 </script>
 
@@ -36,6 +39,9 @@ onMounted(() => {
       positionOffset: props.positionOffset,
       iconAtlas: props.iconAtlas,
       iconMapping: props.iconMapping,
+      getBottomMask: props.getBottomMask,
+      getTopMask: props.getTopMask,
+      updateTriggers: props.updateTriggers,
       onClick: (info) => {
         if (!info.layer || !info.object) return
         emits('click', info.object)

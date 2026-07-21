@@ -1,5 +1,5 @@
 import { CompositeLayer, IconLayer, ScatterplotLayer } from 'deck.gl'
-import type { Layer, LayersList, CompositeLayerProps, IconLayerProps } from 'deck.gl'
+import type { Layer, LayersList, CompositeLayerProps, IconLayerProps, Accessor } from 'deck.gl'
 import type { MarkerThin } from '@/stores/marker'
 import mixtureFs from './mixture-icon-layer.fs.glsl?raw'
 import { mixtureUniforms } from './mixture-icon-layer.uniforms'
@@ -11,16 +11,20 @@ export interface GenshinMarkerLayerProps extends Partial<CompositeLayerProps> {
   iconAtlas?: string
   iconMapping: IconMapping
   positionOffset?: [x: number, y: number]
+  /** 状态纹理位掩码 accessor (per-instance,位于最底层),bit i 对应首行第 (i+1) 列的状态纹理 */
+  getBottomMask?: Accessor<MarkerThin, number>
+  /** 状态纹理位掩码 accessor (per-instance,位于最顶层),bit i 对应首行第 (i+1) 列的状态纹理 */
+  getTopMask?: Accessor<MarkerThin, number>
 }
 
 export interface MixtureIconLayerProps extends IconLayerProps<MarkerThin> {
-  /** 状态纹理位掩码(位于最底层),bit i 对应首行第 (i+1) 列的状态纹理 */
-  bottomMask?: number
-  /** 状态纹理位掩码(位于最顶层),bit i 对应首行第 (i+1) 列的状态纹理 */
-  topMask?: number
-  /** 图标缩放倍率 (0~2,默认 1) — 以图标中心为原点 */
+  /** 状态纹理位掩码 accessor (per-instance,位于最底层),bit i 对应首行第 (i+1) 列的状态纹理 */
+  getBottomMask?: Accessor<MarkerThin, number>
+  /** 状态纹理位掩码 accessor (per-instance,位于最顶层),bit i 对应首行第 (i+1) 列的状态纹理 */
+  getTopMask?: Accessor<MarkerThin, number>
+  /** 图标缩放倍率 (0~2,默认 1) - 以图标中心为原点 */
   iconScale?: number
-  /** 图标平移偏移 (绝对像素,默认 [0, 0]) — 以图标中心为原点 */
+  /** 图标平移偏移 (绝对像素,默认 [0, 0]) - 以图标中心为原点 */
   iconTranslate?: [number, number]
 }
 
@@ -39,10 +43,22 @@ class MixtureIconLayer extends IconLayer<MarkerThin, MixtureIconLayerProps> {
 
   static defaultProps = {
     ...IconLayer.defaultProps,
-    bottomMask: 0,
-    topMask: 0,
+    getBottomMask: { type: 'accessor', value: 0 },
+    getTopMask: { type: 'accessor', value: 0 },
     iconScale: 0.54,
     iconTranslate: [0, 0] as [number, number],
+  }
+
+  override initializeState() {
+    super.initializeState()
+    // 注册 per-instance 掩码属性 (float,size=1)
+    // accessor 名 'getBottomMask' / 'getTopMask' 与 defaultProps 对应,
+    // 属性名 instanceBottomMask / instanceTopMask 与 vs:#decl 中的 in 声明匹配,
+    // bufferLayout 由继承的 _getModel() -> getBufferLayouts() 自动包含
+    this.getAttributeManager()!.addInstanced({
+      instanceBottomMask: { size: 1, accessor: 'getBottomMask', defaultValue: 0 },
+      instanceTopMask: { size: 1, accessor: 'getTopMask', defaultValue: 0 },
+    })
   }
 
   override getShaders() {
@@ -60,11 +76,20 @@ class MixtureIconLayer extends IconLayer<MarkerThin, MixtureIconLayerProps> {
       inject: {
         ...shaders.inject,
         'vs:#decl': /* glsl */ `
+in float instanceBottomMask;
+in float instanceTopMask;
 out vec2 vMixtureTextureCoords;
 out vec2 vMixtureUV;
 out vec2 vMixtureStateCoords[MIXTURE_MAX_STATE_BITS];
+// per-instance 掩码传递给 fragment shader (flat: 禁止插值)
+flat out float vBottomMask;
+flat out float vTopMask;
 `,
         'vs:#main-end': /* glsl */ `
+// === MixtureIconLayer: 传递 per-instance 掩码 ===
+vBottomMask = instanceBottomMask;
+vTopMask = instanceTopMask;
+
 // === MixtureIconLayer: 计算缩放/平移后的原始纹理 UV 与各状态纹理 UV ===
 
 // 1. 基础 quadUV ([0, 1] 区间,0 = 左上,1 = 右下)
@@ -113,15 +138,13 @@ for (int i = 0; i < MIXTURE_MAX_STATE_BITS; ++i) {
   }
 
   override draw(opts: Parameters<IconLayer<MarkerThin, MixtureIconLayerProps>['draw']>[0]) {
-    const { iconScale = 1, iconTranslate = [0, 0], bottomMask = 0, topMask = 0 } = this.props
+    const { iconScale = 1, iconTranslate = [0, 0] } = this.props
     const model = this.state.model
     if (model) {
       model.shaderInputs.setProps({
         mixture: {
           mixtureIconScale: iconScale,
           mixtureIconTranslate: iconTranslate,
-          mixtureBottomMask: bottomMask,
-          mixtureTopMask: topMask,
           // 与 stores/icon/render.worker.ts 的 DEFAULT_GAP 保持一致
           mixtureIconGap: 1,
         },
@@ -166,12 +189,16 @@ export class GenshinMarkerLayer extends CompositeLayer<GenshinMarkerLayerProps> 
     iconAtlas: string
     iconMapping: IconMapping
     offset: [number, number]
+    getBottomMask?: Accessor<MarkerThin, number>
+    getTopMask?: Accessor<MarkerThin, number>
+    updateTriggers?: CompositeLayerProps['updateTriggers']
   }) {
     const [ox = 0, oy = 0] = param.offset
     return new MixtureIconLayer({
       pickable: true,
-      bottomMask: 0b01,
-      topMask: 0b0,
+      // 默认保留原有行为: state[0] (container) 渲染在底层
+      getBottomMask: param.getBottomMask ?? 0b01,
+      getTopMask: param.getTopMask ?? 0,
       id: 'GenshinMarkerLayer-MixtureIcon',
       data: param.data,
       iconAtlas: param.iconAtlas,
@@ -181,12 +208,22 @@ export class GenshinMarkerLayer extends CompositeLayer<GenshinMarkerLayerProps> 
       getSize: 40,
       updateTriggers: {
         getPosition: param.offset,
+        getBottomMask: param.updateTriggers?.getBottomMask,
+        getTopMask: param.updateTriggers?.getTopMask,
       },
     })
   }
 
   override renderLayers(): Layer | null | LayersList {
-    const { data, iconAtlas, iconMapping, positionOffset = DEFAULT_POSITION } = this.props
+    const {
+      data,
+      iconAtlas,
+      iconMapping,
+      positionOffset = DEFAULT_POSITION,
+      getBottomMask,
+      getTopMask,
+      updateTriggers,
+    } = this.props
     return [
       !iconAtlas
         ? this.#createPlaceholderLayer({
@@ -200,6 +237,9 @@ export class GenshinMarkerLayer extends CompositeLayer<GenshinMarkerLayerProps> 
             iconAtlas,
             iconMapping,
             offset: positionOffset,
+            getBottomMask,
+            getTopMask,
+            updateTriggers,
           })
         : null,
     ]
