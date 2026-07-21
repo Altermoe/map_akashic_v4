@@ -4,7 +4,7 @@ import MapFilter from '@/components/map-filter/map-filter.vue'
 
 definePage({
   meta: {
-    title: 'map-filter',
+    title: '筛选器',
   },
 })
 

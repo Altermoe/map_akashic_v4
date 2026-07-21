@@ -3,7 +3,7 @@ import { useMarkerStore } from '@/stores'
 
 definePage({
   meta: {
-    title: 'worker-marker-state',
+    title: '点位解码器',
   },
 })
 

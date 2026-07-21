@@ -3,7 +3,7 @@ import IconTextureRender from '@/feature/icon-texture-render/index.vue'
 
 definePage({
   meta: {
-    title: 'marker-textute-renderer',
+    title: '纹理渲染器',
   },
 })
 </script>

@@ -3,7 +3,7 @@ import IconPreview from '@/feature/icon-preview/index.vue'
 
 definePage({
   meta: {
-    title: 'marker-container',
+    title: '点位容器',
   },
 })
 </script>
