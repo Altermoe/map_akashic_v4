@@ -41,7 +41,7 @@ onMounted(() => {
       iconMapping: props.iconMapping,
       getBottomMask: props.getBottomMask,
       getTopMask: props.getTopMask,
-      updateTriggers: props.updateTriggers,
+      updateTriggers: props.updateTriggers ?? {},
       onClick: (info) => {
         if (!info.layer || !info.object) return
         emits('click', info.object)
