@@ -20,7 +20,7 @@ interface CachedRenderResult {
 }
 
 const CACHE_NAMESPACE = 'icon-render'
-const ICON_STATE: { key: string; url: string }[] = [
+export const ICON_STATE: { key: string; url: string }[] = [
   {
     key: 'default',
     url: markerContainerIconUrl,

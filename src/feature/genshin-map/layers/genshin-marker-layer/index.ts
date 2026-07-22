@@ -15,6 +15,8 @@ export interface GenshinMarkerLayerProps extends Partial<CompositeLayerProps> {
   getBottomMask?: Accessor<MarkerThin, number>
   /** 状态纹理位掩码 accessor (per-instance,位于最顶层),bit i 对应首行第 (i+1) 列的状态纹理 */
   getTopMask?: Accessor<MarkerThin, number>
+  /** 状态纹理最大位数 (与 iconAtlas 首行状态纹理数一致,影响 shader 编译时常量 MIXTURE_MAX_STATE_BITS) */
+  maxStateBits?: number
 }
 
 export interface MixtureIconLayerProps extends IconLayerProps<MarkerThin> {
@@ -26,6 +28,8 @@ export interface MixtureIconLayerProps extends IconLayerProps<MarkerThin> {
   iconScale?: number
   /** 图标平移偏移 (绝对像素,默认 [0, 0]) - 以图标中心为原点 */
   iconTranslate?: [number, number]
+  /** 状态纹理最大位数 (影响 shader 编译时常量 MIXTURE_MAX_STATE_BITS) */
+  maxStateBits?: number
 }
 
 /**
@@ -47,6 +51,7 @@ class MixtureIconLayer extends IconLayer<MarkerThin, MixtureIconLayerProps> {
     getTopMask: { type: 'accessor', value: 0 },
     iconScale: 0.54,
     iconTranslate: [0, 0] as [number, number],
+    maxStateBits: 8,
   }
 
   override initializeState() {
@@ -69,9 +74,9 @@ class MixtureIconLayer extends IconLayer<MarkerThin, MixtureIconLayerProps> {
       modules: [...shaders.modules, mixtureUniforms],
       defines: {
         ...shaders.defines,
-        // 状态纹理最大位数 = 8(bit 0~7)
-        // 性能优先:使用编译时常量以展开循环,修改此处需同步修改 fragment shader 中数组大小
-        MIXTURE_MAX_STATE_BITS: 8,
+        // 状态纹理最大位数,由 maxStateBits prop 控制 (默认 8, bit 0~7)
+        // 使用编译时常量以展开循环,修改此处需同步修改 fragment shader 中数组大小
+        MIXTURE_MAX_STATE_BITS: Math.max(1, this.props.maxStateBits ?? 8),
       },
       inject: {
         ...shaders.inject,
@@ -191,6 +196,7 @@ export class GenshinMarkerLayer extends CompositeLayer<GenshinMarkerLayerProps> 
     offset: [number, number]
     getBottomMask?: Accessor<MarkerThin, number>
     getTopMask?: Accessor<MarkerThin, number>
+    maxStateBits?: number
     updateTriggers?: CompositeLayerProps['updateTriggers']
   }) {
     const [ox = 0, oy = 0] = param.offset
@@ -199,6 +205,7 @@ export class GenshinMarkerLayer extends CompositeLayer<GenshinMarkerLayerProps> 
       // 默认保留原有行为: state[0] (container) 渲染在底层
       getBottomMask: param.getBottomMask ?? 0b01,
       getTopMask: param.getTopMask ?? 0,
+      maxStateBits: param.maxStateBits,
       id: 'GenshinMarkerLayer-MixtureIcon',
       data: param.data,
       iconAtlas: param.iconAtlas,
@@ -222,6 +229,7 @@ export class GenshinMarkerLayer extends CompositeLayer<GenshinMarkerLayerProps> 
       positionOffset = DEFAULT_POSITION,
       getBottomMask,
       getTopMask,
+      maxStateBits,
       updateTriggers,
     } = this.props
     return [
@@ -239,6 +247,7 @@ export class GenshinMarkerLayer extends CompositeLayer<GenshinMarkerLayerProps> 
             offset: positionOffset,
             getBottomMask,
             getTopMask,
+            maxStateBits,
             updateTriggers,
           })
         : null,

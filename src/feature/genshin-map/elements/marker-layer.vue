@@ -16,6 +16,7 @@ export interface MarkerLayerProps {
 <script setup lang="ts">
 import type { Deck, OrthographicView } from 'deck.gl'
 import { Fragment } from 'vue'
+import { ICON_STATE } from '@/stores/icon'
 import { GenshinMarkerLayer } from '../layers/genshin-marker-layer'
 import type { GenshinMarkerLayerProps } from '../layers/genshin-marker-layer'
 import { removeLayerFrom, addLayerFrom } from '../utils'
@@ -41,6 +42,7 @@ onMounted(() => {
       iconMapping: props.iconMapping,
       getBottomMask: props.getBottomMask,
       getTopMask: props.getTopMask,
+      maxStateBits: ICON_STATE.length,
       updateTriggers: props.updateTriggers ?? {},
       onClick: (info) => {
         if (!info.layer || !info.object) return
