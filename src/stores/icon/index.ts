@@ -20,14 +20,20 @@ interface CachedRenderResult {
 }
 
 const CACHE_NAMESPACE = 'icon-render'
-export const ICON_STATE: { key: string; url: string }[] = [
+export const enum IconState {
+  DEFAULT = 0b001,
+  OVERLAY = 0b010,
+}
+export const ICON_STATE: { key: string; url: string; bit: number }[] = [
   {
     key: 'default',
     url: markerContainerIconUrl,
+    bit: IconState.DEFAULT,
   },
   {
     key: 'overlay',
     url: markerOverlayPinIconUrl,
+    bit: IconState.OVERLAY,
   },
 ]
 
