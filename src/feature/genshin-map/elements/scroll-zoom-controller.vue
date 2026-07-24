@@ -3,13 +3,13 @@ import type { Deck, OrthographicView, OrthographicViewState } from 'deck.gl'
 import { LinearInterpolator, OrthographicViewport } from 'deck.gl'
 import { fromEvent } from 'rxjs'
 import { Fragment } from 'vue'
+import type { GenshinDeck } from '../core/genshin-deck'
 import { onReady } from '../utils'
 import { easeOutQuart } from '../utils/transition-easing'
 
 const props = defineProps<{
   target: HTMLElement
-  viewState: OrthographicViewState
-  deck: Deck<OrthographicView>
+  deck: GenshinDeck
 }>()
 
 /**
@@ -63,7 +63,9 @@ watch(
     })
     if (isCleanup) return
     unsubscribable = wheel$.subscribe((ev) => {
-      const { viewState, target: element } = props
+      const viewState = deck.getLiveViewState()
+      if (!viewState) return
+      const { target: element } = props
       const { x, y, deltaY } = ev
       const { clientWidth, clientHeight } = element
       const {

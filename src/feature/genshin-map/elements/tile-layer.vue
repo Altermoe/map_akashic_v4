@@ -1,6 +1,6 @@
 <script lang="ts">
 export interface TileLayerProps {
-  deck: Deck<OrthographicView>
+  deck: GenshinDeck
   data: ResolvedTileset
   index: number
   visible?: boolean
@@ -10,8 +10,8 @@ export interface TileLayerProps {
 </script>
 
 <script setup lang="ts">
-import type { Deck, OrthographicView } from 'deck.gl'
 import { Fragment } from 'vue'
+import type { GenshinDeck } from '../core/genshin-deck'
 import { GenshinTileLayer } from '../layers/genshin-tile-layer'
 import type { TileLayerDebugOptions } from '../layers/genshin-tile-layer'
 import type { ResolvedTileset } from '../types'

@@ -344,6 +344,19 @@ export class GenshinTileLayer
         maxBounds: debug ? undefined : bounds,
         scrollZoom: false,
       },
+    })
+    const fromViewState = deck.getLiveViewState()
+    if (!fromViewState?.target) {
+      console.log('init viewState')
+      deck.setProps({
+        initialViewState: {
+          target: initViewState.target,
+          zoom: 0,
+        },
+      })
+    }
+    await new Promise((resolve) => setTimeout(resolve, 500))
+    deck.setProps({
       initialViewState: {
         ...initViewState,
         maxZoom: 2,

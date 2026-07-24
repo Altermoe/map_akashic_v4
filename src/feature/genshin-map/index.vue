@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { OrthographicView, type OrthographicViewState } from 'deck.gl'
-import { useMarkerStore, useIconStore } from '@/stores'
+import type { OrthographicViewState } from 'deck.gl'
+import { useFilterStore, useIconStore } from '@/stores'
 import { SiderToolbar } from './components'
 import DeckGl from './elements/deck-gl.vue'
 import MarkerLayer from './elements/marker-layer.vue'
@@ -8,37 +8,55 @@ import ScrollZoomController from './elements/scroll-zoom-controller.vue'
 import TileLayer from './elements/tile-layer.vue'
 import type { ResolvedTileset } from './types'
 
+const ItemFilter = defineAsyncComponent(() => import('@/feature/sider-menus/item-filter/index.vue'))
+const ItemLocale = defineAsyncComponent(() => import('@/feature/sider-menus/item-locale/index.vue'))
+const ItemSetting = defineAsyncComponent(
+  () => import('@/feature/sider-menus/item-setting/index.vue'),
+)
+
 defineProps<{
   tileset: ResolvedTileset
 }>()
 
-const view = new OrthographicView()
+const areaCode = defineModel<string | undefined>('areaCode', {
+  required: false,
+  default: '',
+})
 
-const markerStore = useMarkerStore()
+const filterStore = useFilterStore()
 const iconStore = useIconStore()
 
-const viewState = shallowRef<OrthographicViewState>({
-  target: [0, 0],
-  zoom: 0,
-})
-const syncViewStateChange = (state: OrthographicViewState) => {
-  viewState.value = state
-}
+const renderMarkers = computed(() =>
+  filterStore.result.toSorted((a, b) => {
+    return a.pos[1] - b.pos[1]
+  }),
+)
 </script>
 
 <template>
-  <DeckGl
-    :view="view"
-    v-slot="{ deck, canvas }"
-    @view-state-change="(changes) => syncViewStateChange(changes.viewState)"
-  >
-    <ScrollZoomController :deck="deck" :view-state="viewState" :target="canvas" />
-    <SiderToolbar />
-    <TileLayer :deck="deck" :index="0" :data="tileset" />
+  <DeckGl v-slot="{ deck, canvas }">
+    <ScrollZoomController :deck="deck" :target="canvas" />
+    <SiderToolbar>
+      <template #filter>
+        <ItemFilter v-model:area-code="areaCode" />
+      </template>
+      <template #locale>
+        <ItemLocale />
+      </template>
+      <template #setting>
+        <ItemSetting />
+      </template>
+    </SiderToolbar>
+    <TileLayer
+      :deck="deck"
+      :index="0"
+      :data="tileset"
+      :debug="{ showTile: false, showBounds: true, showLayout: true, showTileIndex: true }"
+    />
     <MarkerLayer
       :deck="deck"
       :index="1"
-      :data="markerStore.indexList"
+      :data="renderMarkers"
       :position-offset="tileset.center"
       :icon-atlas="iconStore.textureUrl"
       :icon-mapping="iconStore.mapping"

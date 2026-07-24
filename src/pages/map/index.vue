@@ -27,5 +27,5 @@ const handleRetry = () => {
     :message="configStore.error.message"
     @retry="handleRetry"
   />
-  <GenshinMap v-else-if="tilesetConfig" :tileset="tilesetConfig" />
+  <GenshinMap v-else-if="tilesetConfig" v-model:area-code="query.area" :tileset="tilesetConfig" />
 </template>

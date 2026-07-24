@@ -1,30 +1,28 @@
 <script lang="ts">
-import type { View } from '@deck.gl/core'
+import type { View, OrthographicViewState } from '@deck.gl/core'
 
-export interface DeckGlProps<ViewT extends View> {
-  view: ViewT
-}
+export interface GenshinMapPaops {}
 </script>
 
 <script setup lang="ts" generic="ViewT extends View">
-import { Deck } from 'deck.gl'
+import { OrthographicView } from 'deck.gl'
+import { GenshinDeck } from '../core/genshin-deck'
 
-const props = defineProps<DeckGlProps<ViewT>>()
 const emits = defineEmits<{
-  viewStateChange: Parameters<Required<Deck<ViewT>['props']>['onViewStateChange']>
+  viewStateChange: [OrthographicViewState]
 }>()
 
 const canvasRef = useTemplateRef('canvasRef')
-const deckRef = shallowRef<Deck<ViewT> | null>(null)
+const deckRef = shallowRef<GenshinDeck | null>(null)
 
 onMounted(() => {
   const canvas = canvasRef.value
   if (!canvas) {
     throw new Error('Canvas not found.')
   }
-  const deck = new Deck<ViewT>({
+  const deck = new GenshinDeck({
     canvas,
-    views: props.view,
+    views: new OrthographicView(),
     // 性能优化: 视口变化期间禁用 pick 以提高帧率
     onInteractionStateChange: (state) => {
       const changing = Boolean(
@@ -38,9 +36,9 @@ onMounted(() => {
       if (deck.props._pickable === pickable) return
       deck.setProps({ _pickable: pickable })
     },
-    onViewStateChange: (changes) => {
-      emits('viewStateChange', changes)
-      return changes.viewState
+    onViewStateChange: ({ viewState }) => {
+      emits('viewStateChange', viewState)
+      return viewState
     },
     getCursor: ({ isDragging, isHovering }) => {
       return isDragging ? 'grabbing' : isHovering ? 'pointer' : 'default'
@@ -59,18 +57,7 @@ onMounted(() => {
 
   deckRef.value = deck
 
-  const effects: { stop: () => void }[] = [
-    { stop: () => cancelIdleCallback(rIC) },
-    watch(
-      () => props.view,
-      (views) => {
-        deck.setProps({ views })
-      },
-    ),
-  ]
-
   onUnmounted(() => {
-    effects.forEach(({ stop }) => stop())
     deck.finalize()
   })
 })
