@@ -1,8 +1,8 @@
 ---
-alwaysApply: true
+alwaysApply: false
+description: 仅在生成 git 提交信息时生效
 scene: git_message
 ---
-
 1. **格式与 Emoji 映射:**
 根据提交信息使用如下提交类型，同时根据提交类型，在提交标签（含 scope）后、具体信息前插入对应的 emoji。
 ```json
