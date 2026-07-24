@@ -161,6 +161,10 @@ for (int i = 0; i < MIXTURE_MAX_STATE_BITS; ++i) {
 
 const DEFAULT_POSITION = [0, 0] as [number, number]
 
+const getMarkerTopMask = (marker: MarkerThin): number => {
+  return marker.isOverlay ? 0b010 : 0
+}
+
 export class GenshinMarkerLayer extends CompositeLayer<GenshinMarkerLayerProps> {
   static layerName = 'GenshinMarkerLayer'
 
@@ -204,7 +208,7 @@ export class GenshinMarkerLayer extends CompositeLayer<GenshinMarkerLayerProps> 
       pickable: true,
       // 默认保留原有行为: state[0] (container) 渲染在底层
       getBottomMask: param.getBottomMask ?? 0b01,
-      getTopMask: param.getTopMask ?? 0,
+      getTopMask: param.getTopMask ?? getMarkerTopMask,
       maxStateBits: param.maxStateBits,
       id: 'GenshinMarkerLayer-MixtureIcon',
       data: param.data,

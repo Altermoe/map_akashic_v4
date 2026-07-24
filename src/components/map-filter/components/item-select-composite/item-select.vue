@@ -11,7 +11,10 @@ const props = defineProps<{
 }>()
 
 const selectedTypeIndex = ref<number | undefined>(-2)
-const selectedItemIds = ref<number[]>([])
+const selectedItemIds = defineModel<number[]>('selectedItemIds', {
+  required: false,
+  default: () => [],
+})
 const searchText = ref('')
 
 // 地区变化时重置已选物品

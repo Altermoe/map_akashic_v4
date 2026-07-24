@@ -17,7 +17,6 @@ const enum MENU_KEYS {
 interface MenuConfig {
   label: string
   icon: Component
-  component?: Component
 }
 
 const { t } = useI18n()
@@ -40,25 +39,22 @@ const menuConfigMap = computed<Record<MENU_KEYS, MenuConfig>>(() => ({
   [MENU_KEYS.FILTER]: {
     label: t('filter'),
     icon: RegularFilter,
-    component: defineAsyncComponent(() => import('@/feature/sider-menus/item-filter/index.vue')),
   },
   [MENU_KEYS.TRACK]: {
     label: t('track'),
     icon: RegularLocation,
-    component: defineComponent({ render: () => 'TODO' }),
   },
   [MENU_KEYS.LOCALE]: {
     label: t('locale'),
     icon: RegularLocale,
-    component: defineAsyncComponent(() => import('@/feature/sider-menus/item-locale/index.vue')),
   },
   [MENU_KEYS.SETTING]: {
     label: t('setting'),
     icon: RegularSetting,
-    component: defineAsyncComponent(() => import('@/feature/sider-menus/item-setting/index.vue')),
   },
 }))
 
+const menuKeys = [MENU_KEYS.FILTER, MENU_KEYS.LOCALE, MENU_KEYS.SETTING, MENU_KEYS.TRACK]
 const mainItems = [MENU_KEYS.FILTER, MENU_KEYS.TRACK]
 const footerItems = [MENU_KEYS.LOCALE, MENU_KEYS.SETTING]
 
@@ -113,25 +109,25 @@ const toggleMenu = (key: MENU_KEYS) => {
 
     <!-- 右侧拓展面板 -->
     <div
-      v-for="(menu, key) in menuConfigMap"
+      v-for="key in menuKeys"
       v-show="key === sider"
       :key="key"
       :class="[
         'sider-toolbar-right',
         'absolute top-0 left-[var(--tap-width)]',
-        'w-80 h-full flex flex-col',
+        'w-100 h-full flex flex-col',
         'bg-[--bg-level-2] border-r-1 border-[--border-color]',
         isMainPanelCollapsed ? 'is-collapsed' : 'pointer-events-auto',
         sider ? 'is-selected' : '',
       ]"
     >
       <div class="h-17 px-4 gap-2 select-none shrink-0 bg-[--bg-level-1]">
-        <div class="text-lg leading-6 font-bold mt-3">{{ menu.label }}</div>
+        <div class="text-lg leading-6 font-bold mt-3">{{ menuConfigMap[key].label }}</div>
         <div>description</div>
       </div>
       <Suspense>
         <template #fallback> Loading... </template>
-        <component :is="menu.component" />
+        <slot :name="key" />
       </Suspense>
     </div>
   </div>

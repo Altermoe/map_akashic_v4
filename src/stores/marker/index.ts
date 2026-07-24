@@ -8,10 +8,18 @@ import type { MarkerDecodeOutput, MarkerDecodeInput } from '@/stores/marker/deco
 import { invokeWorker } from '@/utils/worker'
 
 export interface MarkerThin {
+  /** 点位 id */
   id: string
+  /** 点位名称 */
   name: string
+  /** 用于地图点位渲染的主图标 id */
   icon: string
+  /** 点位地图坐标 */
   pos: readonly [x: number, y: number]
+  /** 点位是否处于附加层级 */
+  isOverlay: boolean
+  /** 该点位关联的物品 id 列表（从 itemList 提取，用于物品筛选） */
+  itemIds: readonly number[]
 }
 
 let worker: Worker | null = null
@@ -98,6 +106,23 @@ export const useMarkerStore = defineStore('item', () => {
 
   const indexList = shallowRef<MarkerThin[]>([])
 
+  /** 反查索引：itemId -> 包含该物品的 marker id 集合，供 filter 高效查询 */
+  const itemMarkerIndex = computed(() => {
+    const index = new Map<number, Set<string>>()
+    for (const marker of indexList.value) {
+      if (!marker.itemIds) continue
+      for (const itemId of marker.itemIds) {
+        let set = index.get(itemId)
+        if (!set) {
+          set = new Set()
+          index.set(itemId, set)
+        }
+        set.add(marker.id)
+      }
+    }
+    return index
+  })
+
   let currentController: AbortController | null = null
 
   watch(
@@ -142,5 +167,6 @@ export const useMarkerStore = defineStore('item', () => {
 
   return {
     indexList: indexList as Readonly<ShallowRef<MarkerThin[]>>,
+    itemMarkerIndex,
   }
 })

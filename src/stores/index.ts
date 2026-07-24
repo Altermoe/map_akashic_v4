@@ -13,3 +13,5 @@ export type {
   AsyncRunOptions,
   AsyncReport,
 } from './async'
+export { useFilterStore, defineFilter } from './filter'
+export type { FilterContext, FilterImpl, FilterId, FilterParamsOf } from './filter'

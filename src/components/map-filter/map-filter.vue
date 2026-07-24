@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { useAreaStore } from '@/stores'
+import { useAreaStore, useFilterStore } from '@/stores'
 import AreaSelect from './components/area-select-composite/area-select.vue'
 import FilterModeSelector from './components/filter-mode-selector.vue'
 import ItemSelect from './components/item-select-composite/item-select.vue'
 
 const areaStore = useAreaStore()
+const filterStore = useFilterStore()
 
 const selectedAreaCode = defineModel<string | undefined>('areaCode', {
   required: false,
@@ -14,7 +15,19 @@ const selectedAreaCode = defineModel<string | undefined>('areaCode', {
 const selectedParent = computed(() => areaStore.getParentArea(selectedAreaCode.value))
 const selectedChild = computed(() => areaStore.getAreaByCode(selectedAreaCode.value))
 
+const selectedAreaIdList = computed(() => (selectedChild.value ? [selectedChild.value.id!] : []))
+
 const selectedFilterModeIndex = ref(0)
+
+const selectedItemIds = ref<number[]>([])
+
+watch(
+  selectedItemIds,
+  (ids) => {
+    filterStore.applyFilter('basic', { itemIds: ids })
+  },
+  { immediate: true },
+)
 </script>
 
 <template>
@@ -37,7 +50,7 @@ const selectedFilterModeIndex = ref(0)
     />
 
     <!-- 物品选择器（含类型） -->
-    <ItemSelect :area-id-list="selectedChild ? [selectedChild.id!] : []" />
+    <ItemSelect v-model:selected-item-ids="selectedItemIds" :area-id-list="selectedAreaIdList" />
   </div>
 </template>
 
