@@ -3,7 +3,7 @@ import { useIconStore } from '@/stores'
 
 const iconStore = useIconStore()
 
-const containerRef = ref<HTMLDivElement | null>(null)
+const containerRef = shallowRef<HTMLDivElement | null>(null)
 const imgUrl = ref('')
 
 const canvasSize = reactive({ width: 0, height: 0 })
