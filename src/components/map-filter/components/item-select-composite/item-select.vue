@@ -10,7 +10,7 @@ const props = defineProps<{
   areaIdList?: number[]
 }>()
 
-const selectedTypeIndex = ref<number | undefined>(-2)
+const selectedTypeIndex = ref<number>(-2)
 const selectedItemIds = defineModel<number[]>('selectedItemIds', {
   required: false,
   default: () => [],
