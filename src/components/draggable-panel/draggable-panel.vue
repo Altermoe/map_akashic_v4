@@ -142,13 +142,14 @@ const contentStyle = computed(() => ({
   box-shadow: var(--panel-shadow);
   overflow: hidden;
   user-select: none;
-  will-change: transform, width, height;
   contain: layout style;
 }
 
 .draggable-panel.is-interacting {
   /* 交互时禁用过渡，跟手更灵敏 */
   transition: none;
+  /* 仅在交互期间开启 will-change，提示浏览器启用 GPU 加速 */
+  will-change: transform, width, height;
 }
 
 /* ---------- 标题栏 ---------- */
