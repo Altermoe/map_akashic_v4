@@ -19,7 +19,7 @@ export const useFilterStore = defineStore('filter', () => {
   /** 预制 filter 实现表（id -> impl），非响应式、不可运行时变更 */
   const registry = new Map<FilterId, FilterImpl<any>>()
   /** 已激活的 filter 及其参数，按激活顺序保持插入序 */
-  const active = ref(new Map<FilterId, unknown>())
+  const active = shallowRef(new Map<FilterId, unknown>())
   /** pipeline 最终输出 */
   const result = shallowRef<MarkerThin[]>([])
   const loading = ref(false)
