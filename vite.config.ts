@@ -6,11 +6,11 @@ import UnoCSS from 'unocss/vite'
 import AutoImport from 'unplugin-auto-import/vite'
 import { defineConfig, loadEnv, type PluginOption, type ProxyOptions } from 'vite'
 import VueRouter from 'vue-router/vite'
-import { svgToPngPlugin } from './infrastructure/vite/svg-to-png-plugin'
 import * as z from 'zod'
 import { zhCN } from 'zod/locales'
 import { envSchema } from './envs/schema'
 import { Logger } from './infrastructure/logger'
+import { svgToPngPlugin } from './infrastructure/vite/svg-to-png-plugin'
 import { version } from './package.json' with { type: 'json' }
 
 z.config(zhCN())
@@ -93,6 +93,8 @@ export default defineConfig(({ mode }) => {
     plugins: [
       VueRouter({
         dts: path.resolve(__dirname, 'types/router.d.ts'),
+        exclude:
+          mode === 'production' ? [path.resolve(__dirname, 'src/pages/development.vue')] : [],
       }),
       Vue() as PluginOption,
       UnoCSS(),
