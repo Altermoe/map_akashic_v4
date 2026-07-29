@@ -284,8 +284,11 @@ export const useDebugStore = defineStore('debug', () => {
   /** 活跃计时器 Map */
   const timers = shallowRef(new Map<string, TimerEntry>())
 
+  /** 调试模式开关状态 */
+  const debugMode = ref<boolean>(import.meta.env.DEV)
+
   /** 当前是否处于调试模式 */
-  const isDebugMode = computed(() => import.meta.env.DEV)
+  const isDebugMode = computed(() => debugMode.value)
 
   /** 各级别日志数量统计 */
   const countByLevel = computed<LogLevelCount>(() => {
@@ -495,7 +498,12 @@ export const useDebugStore = defineStore('debug', () => {
    * ```
    */
   const time = (label: string, options?: TimerOptions): void => {
-    // TODO: 创建 TimerEntry 并加入 timers Map
+    const entry: TimerEntry = {
+      name: label,
+      tags: options?.tags ?? [],
+      startTime: Date.now(),
+    }
+    timers.value.set(label, entry)
   }
 
   /**
@@ -506,12 +514,16 @@ export const useDebugStore = defineStore('debug', () => {
    * @returns 耗时（毫秒），若计时器不存在则为 undefined
    */
   const timeEnd = (label: string): number | undefined => {
-    // TODO: 结束计时器
-    // 1. 从 timers 中查找并移除
-    // 2. 计算 duration
-    // 3. 写入一条 info 级日志（携带 duration 信息）
-    // 4. 返回耗时
-    return undefined
+    const entry = timers.value.get(label)
+    if (!entry) return undefined
+    const endTime = Date.now()
+    const duration = endTime - entry.startTime
+    timers.value.delete(label)
+    log('info', `${label}: ${duration}ms`, {
+      tags: [...entry.tags, 'performance'],
+      payload: { duration, label },
+    })
+    return duration
   }
 
   /**
@@ -597,7 +609,8 @@ export const useDebugStore = defineStore('debug', () => {
    * 生产环境中此方法可能受限，需通过特殊入口（如 URL 参数）启用。
    */
   const toggleDebugMode = (): void => {
-    // TODO: 切换调试模式（生产环境需额外校验）
+    debugMode.value = !debugMode.value
+    logLevel.value = debugMode.value ? 'debug' : 'info'
   }
 
   // ── 返回 ────────────────────────────────────────────────
