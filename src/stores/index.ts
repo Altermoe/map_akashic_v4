@@ -15,3 +15,17 @@ export type {
 } from './async'
 export { useFilterStore, defineFilter } from './filter'
 export type { FilterContext, FilterImpl, FilterId, FilterParamsOf } from './filter'
+export { useDebugStore } from './debug'
+export type {
+  LogLevel,
+  LogEntry,
+  TimerEntry,
+  FatalError,
+  NoticeableError,
+  ReportFatalOptions,
+  ReportErrorOptions,
+  LogOptions,
+  TimerOptions,
+  LogFilter,
+  LogLevelCount,
+} from './debug'
