@@ -1,8 +1,12 @@
 <script setup lang="ts">
+import { watchDebounced } from '@vueuse/core'
+import { useI18n } from 'vue-i18n'
 import { useAreaStore, useFilterStore } from '@/stores'
 import AreaSelect from './components/area-select-composite/area-select.vue'
 import FilterModeSelector from './components/filter-mode-selector.vue'
 import ItemSelect from './components/item-select-composite/item-select.vue'
+
+const { t } = useI18n({ useScope: 'global' })
 
 const areaStore = useAreaStore()
 const filterStore = useFilterStore()
@@ -28,6 +32,22 @@ watch(
   },
   { immediate: true },
 )
+
+/** 点位名称搜索：防抖 300ms 后应用/清除 search 筛选器 */
+const searchKeyword = ref('')
+
+watchDebounced(
+  searchKeyword,
+  (keyword) => {
+    const trimmed = keyword.trim()
+    if (trimmed) {
+      filterStore.applyFilter('search', { keyword: trimmed })
+    } else {
+      filterStore.clearFilter('search')
+    }
+  },
+  { debounce: 300 },
+)
 </script>
 
 <template>
@@ -37,6 +57,14 @@ watch(
       'w-96 h-120 p-1 rounded-xl flex flex-col bg-[--bg] shadow-[0_0_2px_var(--gl-1),0_0_0.5rem_var(--gl-1)] text-[--text-color]',
     ]"
   >
+    <!-- 点位名称搜索 -->
+    <input
+      v-model="searchKeyword"
+      type="search"
+      :placeholder="t('sider.filter.search.placeholder')"
+      class="w-full px-3 py-2 mb-1 rounded-xl text-sm bg-[--gl-1] hover:bg-[--gl-2] outline-none placeholder:opacity-60"
+    />
+
     <!-- 筛选类型 -->
     <FilterModeSelector v-model:selected-index="selectedFilterModeIndex" />
 

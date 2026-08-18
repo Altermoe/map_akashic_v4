@@ -1,6 +1,7 @@
 {
   "sider.locale.search.placeholder": "Search language (name / code)",
   "sider.locale.list.empty": "No matching languages",
-  "sider.filter.area.title": "Area"
+  "sider.filter.area.title": "Area",
+  "sider.filter.search.placeholder": "Search marker name"
 }
 
