@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { useRequest, useWatcher } from 'alova/client'
+import { useRequest } from 'alova/client'
 import Api from '@/api'
-import type { ItemSearchVo, ItemVo } from '@/api/services/main/globals'
+import type { ItemVo } from '@/api/services/main/globals'
 import { RegularSearch } from '@/ui/g-icons'
+import { useAreaItems } from '../../composables/use-area-items'
 import ItemSelectItemList from './item-select-item-list.vue'
 import ItemSelectTypeList from './item-select-type-list.vue'
 
@@ -46,47 +47,8 @@ const itemTypeList = computed(() => {
   return list
 })
 
-class AreaEmptyError extends Error {
-  name = 'AreaEmptyError'
-}
-
-// 切换地区后加载该地区的全部物品
-const {
-  data: rawItemList,
-  loading: itemLoading,
-  onError,
-} = useWatcher(
-  () => {
-    return Api.main.item.listItemIdByType({
-      cacheFor: {
-        mode: 'restore',
-        expire: 60 * 60 * 1000,
-      },
-      data: {
-        typeIdList: [],
-        areaIdList: props.areaIdList ?? [],
-        size: 300,
-        sort: ['sortIndex-'],
-      },
-      transform: (data) => data.data?.record ?? [],
-    })
-  },
-  [() => props.areaIdList],
-  {
-    initialData: [],
-    abortLast: true,
-    immediate: false,
-    middleware: ({ method }, next) => {
-      if (!(method.data as ItemSearchVo)?.areaIdList?.length) {
-        return
-      }
-      next()
-    },
-  },
-)
-onError((error) => {
-  if (error instanceof AreaEmptyError) return
-})
+// 当前地区物品列表（与已选 chip 共用同一数据源）
+const { items: rawItemList, loading: itemLoading } = useAreaItems(() => props.areaIdList)
 
 // 切换左侧类型时前端筛选物品
 const itemList = computed(() => {
@@ -174,22 +136,24 @@ function getTypeSelectedCount(typeId: number | undefined) {
 </script>
 
 <template>
-  <div class="flex-1 flex flex-col overflow-hidden rounded-lg border border-[--gl-1] bg-[--gl-0]">
-    <div class="shrink-0 p-2 border-b border-[--gl-1]">
+  <div
+    class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-[--gi-border] bg-[--gi-surface]"
+  >
+    <div class="shrink-0 p-2 border-b border-[--gi-border]">
       <div
-        class="flex h-8 items-center gap-1.5 rounded-md border border-[--gl-2] bg-[--gl-1] px-2 transition-colors focus-within:border-[--color-brand-5]"
+        class="flex h-8 items-center gap-1.5 rounded-md border border-[--gi-border] bg-[--gi-bg-elevated] px-2 transition-colors focus-within:border-[--gi-gold-bright]"
       >
-        <RegularSearch class="size-4 shrink-0 text-[--gl-6]" />
+        <RegularSearch class="size-4 shrink-0 text-[--gi-text-dim]" />
         <input
           v-model="searchText"
           type="text"
-          class="h-full flex-1 bg-transparent text-sm text-[--gl-12] outline-none placeholder:text-[--gl-6]"
+          class="h-full flex-1 bg-transparent text-sm text-[--gi-text] outline-none placeholder:text-[--gi-text-dim]"
           placeholder="搜索物品..."
         />
       </div>
     </div>
 
-    <div class="flex-1 flex overflow-hidden">
+    <div class="flex min-h-0 flex-1 overflow-hidden">
       <ItemSelectTypeList
         :item-type-list="itemTypeList"
         :selected-type-index="selectedTypeIndex"

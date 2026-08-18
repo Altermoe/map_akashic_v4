@@ -10,4 +10,7 @@ export const enum StorageKey {
 
   /** 颜色主题 */
   COLOR_SCHEMA = 'kongying-tavern:web-map:color-schema',
+
+  /** 自定义筛选器勾选的类型 id */
+  FILTER_CUSTOM_TYPE_IDS = 'kongying-tavern:web-map:filter-custom-type-ids',
 }

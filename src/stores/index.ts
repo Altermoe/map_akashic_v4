@@ -14,7 +14,8 @@ export type {
   AsyncReport,
 } from './async'
 export { useFilterStore, defineFilter } from './filter'
-export type { FilterContext, FilterImpl, FilterId, FilterParamsOf } from './filter'
+export type { FilterContext, FilterImpl, FilterId, FilterParamsOf, FilterMode } from './filter'
+export { useItemCatalogStore } from './item-catalog'
 export { useDebugStore } from './debug'
 export type {
   LogLevel,

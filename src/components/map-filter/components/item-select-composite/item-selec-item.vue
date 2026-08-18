@@ -66,16 +66,16 @@ defineProps<ItemSelectItemProps>()
 }
 
 .item-select-item.is-selected {
-  --bg-from: var(--color-brand-1);
-  --bg-to: var(--color-brand-1);
+  --bg-from: var(--gi-gold-soft);
+  --bg-to: var(--gi-gold-soft);
   --percentage: 100%;
-  color: var(--color-brand-6);
+  color: var(--gi-gold-bright);
 }
 .item-select-item:not(.is-selected):hover {
   --percentage: 100%;
-  --bg-to: var(--gl-1);
+  --bg-to: var(--gi-surface-hover);
 }
 .item-select-item:not(.is-selected):active {
-  --bg-to: var(--gl-2);
+  --bg-to: var(--gi-surface-active);
 }
 </style>

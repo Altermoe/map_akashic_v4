@@ -1,0 +1,38 @@
+/* ============================== 原神主题 token（筛选面板作用域） ==============================
+ * 应用方式：在筛选面板根元素挂 .gi-theme，子组件通过 UnoCSS 工具类引用 --gi-* 变量。
+ * 深浅双变体：亮色 = 羊皮纸浅金，暗色 = 深色琉璃 + 鎏金，随全局 color-scheme 自动切换。
+ * 七元素色为语义色，双主题通用（用于类型/分类等语义场景）。
+ * ============================================================================================ */
+.gi-theme {
+  /* —— 底色 —— */
+  --gi-bg: light-dark(oklch(0.972 0.014 88 / 0.94), oklch(0.232 0.026 262 / 0.93));
+  --gi-bg-elevated: light-dark(oklch(0.955 0.02 90 / 0.95), oklch(0.282 0.034 261 / 0.95));
+  --gi-surface: light-dark(oklch(0.93 0.024 86), oklch(0.355 0.042 257));
+  --gi-surface-hover: light-dark(oklch(0.895 0.032 83), oklch(0.41 0.052 252));
+  --gi-surface-active: light-dark(oklch(0.855 0.045 79), oklch(0.465 0.066 246));
+
+  /* —— 鎏金 —— */
+  --gi-gold: light-dark(oklch(0.55 0.1 72), oklch(0.78 0.12 76));
+  --gi-gold-bright: light-dark(oklch(0.62 0.11 70), oklch(0.86 0.11 80));
+  --gi-gold-soft: light-dark(oklch(0.92 0.055 84), oklch(0.4 0.075 52));
+  --gi-gold-faint: light-dark(oklch(0.965 0.024 88), oklch(0.315 0.045 53));
+  --gi-border: light-dark(oklch(0.855 0.05 82), oklch(0.5 0.07 56));
+  --gi-border-strong: light-dark(oklch(0.7 0.09 76), oklch(0.64 0.1 62));
+
+  /* —— 文本 —— */
+  --gi-text: light-dark(oklch(0.33 0.03 58), oklch(0.91 0.02 85));
+  --gi-text-dim: light-dark(oklch(0.47 0.04 66), oklch(0.63 0.035 76));
+  --gi-text-strong: light-dark(oklch(0.4 0.055 64), oklch(0.96 0.028 86));
+
+  /* —— 主题字体 —— */
+  --gi-font-display: 'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', SimSun, serif;
+
+  /* —— 七元素语义色 —— */
+  --gi-element-anemo: #73d0c7;
+  --gi-element-geo: #d3b564;
+  --gi-element-electro: #b28af0;
+  --gi-element-dendro: #9fe37a;
+  --gi-element-hydro: #4fa0e6;
+  --gi-element-pyro: #f26c4f;
+  --gi-element-cryo: #9bd7f5;
+}

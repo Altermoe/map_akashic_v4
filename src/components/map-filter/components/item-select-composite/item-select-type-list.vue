@@ -18,7 +18,7 @@ const emit = defineEmits<{
 
 <template>
   <ScrollAreaRoot
-    class="w-40 shrink-0 overflow-hidden [--scrollbar-size:0.5rem] border-r border-[--gl-1]"
+    class="w-40 shrink-0 overflow-hidden [--scrollbar-size:0.5rem] border-r border-[--gi-border]"
   >
     <ScrollAreaViewport class="w-full h-full">
       <IconSelectItem
@@ -31,7 +31,7 @@ const emit = defineEmits<{
         </template>
         <template v-if="getTypeSelectedCount(-1) > 0" #suffix>
           <span
-            class="ml-auto shrink-0 rounded-full bg-[--color-brand-5] px-1.5 text-xs leading-5 text-white"
+            class="ml-auto shrink-0 rounded-full bg-[--gi-gold] px-1.5 text-xs leading-5 text-white"
           >
             {{ getTypeSelectedCount(-1) }}
           </span>
@@ -47,7 +47,7 @@ const emit = defineEmits<{
         </template>
         <template v-if="getTypeSelectedCount(-2) > 0" #suffix>
           <span
-            class="ml-auto shrink-0 rounded-full bg-[--color-brand-5] px-1.5 text-xs leading-5 text-white"
+            class="ml-auto shrink-0 rounded-full bg-[--gi-gold] px-1.5 text-xs leading-5 text-white"
           >
             {{ getTypeSelectedCount(-2) }}
           </span>
@@ -55,8 +55,8 @@ const emit = defineEmits<{
       </IconSelectItem>
       <template v-if="loading">
         <div v-for="i in 5" :key="i" class="h-10 flex items-center gap-2 px-3">
-          <div class="size-6 rounded-full animate-pulse bg-[--gl-2]" />
-          <div class="h-4 flex-1 rounded animate-pulse bg-[--gl-2]" />
+          <div class="size-6 rounded-full animate-pulse bg-[--gi-surface-active]" />
+          <div class="h-4 flex-1 rounded animate-pulse bg-[--gi-surface-active]" />
         </div>
       </template>
       <template v-else>
@@ -69,7 +69,7 @@ const emit = defineEmits<{
         >
           <template v-if="getTypeSelectedCount(itemType.id) > 0" #suffix>
             <span
-              class="ml-auto shrink-0 rounded-full bg-[--color-brand-5] px-1.5 text-xs leading-5 text-white"
+              class="ml-auto shrink-0 rounded-full bg-[--gi-gold] px-1.5 text-xs leading-5 text-white"
             >
               {{ getTypeSelectedCount(itemType.id) }}
             </span>

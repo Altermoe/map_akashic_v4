@@ -2,5 +2,19 @@
   "sider.locale.search.placeholder": "搜索语言（名称 / 代码）",
   "sider.locale.list.empty": "没有匹配的语言",
   "sider.filter.area.title": "地区",
-  "sider.filter.search.placeholder": "搜索点位名称"
+  "sider.filter.search.placeholder": "搜索点位名称",
+  "sider.filter.default.title": "默认筛选器",
+  "sider.filter.custom.title": "自定义筛选器",
+  "sider.filter.selected.title": "已选物品",
+  "sider.filter.selected.count": "已选 {n} 件",
+  "sider.filter.selected.empty": "尚未选择物品，点击「添加物品」开始挑选",
+  "sider.filter.selected.clear": "清空",
+  "sider.filter.add.title": "添加物品",
+  "sider.filter.add.done": "完成",
+  "sider.filter.custom.hint": "勾选物品类型，地图将只显示对应类型的点位",
+  "sider.filter.custom.empty": "该分类下暂无子类型",
+  "sider.filter.custom.selected": "已选 {n} 类",
+  "sider.filter.custom.loading": "筛选计算中…",
+  "sider.filter.custom.match": "匹配 {n} 个点位",
+  "sider.filter.custom.clear": "清空"
 }

@@ -45,18 +45,18 @@ const handleSelectChild = (area: AreaVo) => {
 </script>
 
 <template>
-  <div class="relative shrink-0 select-none text-[--gl-7]">
+  <div class="relative shrink-0 select-none text-[--gi-text]">
     <!-- 回显态 -->
     <div
       :class="[
         'p-2.5 mb-1 rounded-xl flex items-center gap-3',
-        'cursor-pointer hover:bg-[--gl-0] active:bg-[--gl-2]',
-        // selectedChild ? 'text-[--color-brand-5]' : 'text-[--gl-6]',
+        'cursor-pointer hover:bg-[--gi-surface-hover] active:bg-[--gi-surface-active]',
+        // selectedChild ? 'text-[--color-brand-5]' : 'text-[--gi-text-dim]',
       ]"
       @click="toggle"
     >
       <!-- 子地区图标 -->
-      <div class="size-16 shrink-0 rounded-lg bg-[--gl-1] overflow-hidden relative">
+      <div class="size-16 shrink-0 rounded-lg bg-[--gi-surface] overflow-hidden relative">
         <div
           v-if="childIconUrl || parentIconUrl"
           class="absolute inset-0 bg-current"

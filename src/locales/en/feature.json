@@ -2,6 +2,19 @@
   "sider.locale.search.placeholder": "Search language (name / code)",
   "sider.locale.list.empty": "No matching languages",
   "sider.filter.area.title": "Area",
-  "sider.filter.search.placeholder": "Search marker name"
+  "sider.filter.search.placeholder": "Search marker name",
+  "sider.filter.default.title": "Default Filter",
+  "sider.filter.custom.title": "Custom Filter",
+  "sider.filter.selected.title": "Selected Items",
+  "sider.filter.selected.count": "{n} selected",
+  "sider.filter.selected.empty": "No items selected — click \"Add Items\" to pick",
+  "sider.filter.selected.clear": "Clear",
+  "sider.filter.add.title": "Add Items",
+  "sider.filter.add.done": "Done",
+  "sider.filter.custom.hint": "Check item types; the map will only show markers of those types",
+  "sider.filter.custom.empty": "No sub-types under this category",
+  "sider.filter.custom.selected": "{n} type(s)",
+  "sider.filter.custom.loading": "Filtering…",
+  "sider.filter.custom.match": "{n} markers matched",
+  "sider.filter.custom.clear": "Clear"
 }
-

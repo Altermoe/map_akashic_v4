@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useUrlSearchParams } from '@vueuse/core'
-import MapFilter from '@/components/map-filter/map-filter.vue'
+import ItemFilter from '@/feature/sider-menus/item-filter/index.vue'
 
 definePage({
   meta: {
@@ -17,18 +17,18 @@ const params = useUrlSearchParams<{
   <div class="w-full h-full flex">
     <!-- 亮色模式开发区域 -->
     <div class="relative flex-1 bg-light">
-      <MapFilter
+      <ItemFilter
         v-model:area-code="params.selectedAreaCode"
-        class="absolute left-8 top-8"
+        class="absolute left-8 top-8 h-[calc(100%-4rem)]"
         style="color-scheme: light"
       />
     </div>
 
     <!-- 暗色模式开发区域 -->
     <div class="relative flex-1 bg-dark">
-      <MapFilter
+      <ItemFilter
         v-model:area-code="params.selectedAreaCode"
-        class="absolute left-8 top-8"
+        class="absolute left-8 top-8 h-[calc(100%-4rem)]"
         style="color-scheme: dark"
       />
     </div>

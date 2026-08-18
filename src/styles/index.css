@@ -1,4 +1,5 @@
 @import './theme.css';
+@import './genshin-theme.css';
 
 /* ============================== properties ============================== */
 @property --clip {

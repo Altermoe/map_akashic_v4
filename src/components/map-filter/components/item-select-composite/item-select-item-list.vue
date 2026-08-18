@@ -20,15 +20,17 @@ const emit = defineEmits<{
     <ListboxContent class="h-full overflow-y-auto" style="scrollbar-width: thin">
       <template v-if="loading">
         <div v-for="i in 8" :key="i" class="h-10 flex items-center gap-2 px-3">
-          <div class="size-6 rounded-full animate-pulse bg-[--gl-2]" />
-          <div class="h-4 flex-1 rounded animate-pulse bg-[--gl-2]" />
+          <div class="size-6 rounded-full animate-pulse bg-[--gi-surface-active]" />
+          <div class="h-4 flex-1 rounded animate-pulse bg-[--gi-surface-active]" />
         </div>
       </template>
       <template v-else-if="!hasArea">
-        <div class="h-full flex items-center justify-center text-sm text-[--gl-6]">请选择地区</div>
+        <div class="h-full flex items-center justify-center text-sm text-[--gi-text-dim]">
+          请选择地区
+        </div>
       </template>
       <template v-else-if="itemList.length === 0">
-        <div class="h-full flex items-center justify-center text-sm text-[--gl-6]">
+        <div class="h-full flex items-center justify-center text-sm text-[--gi-text-dim]">
           未检索到任何物品
         </div>
       </template>

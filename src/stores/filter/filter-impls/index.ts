@@ -1,5 +1,6 @@
 import type { MarkerThin } from '@/stores/marker'
 import { filterBasic } from './filter-basic'
+import { filterCustom } from './filter-custom'
 import { filterSearch } from './filter-search'
 
 /** Filter 运行时上下文，由 store 在 apply/clear 时注入 */
@@ -50,7 +51,11 @@ export function defineFilter<TParams, TId extends string>(
 }
 
 /** 预制 filter 注册表，store 初始化时据此填充内部查找表 */
-export const builtinFilters = [filterBasic, filterSearch] as const satisfies readonly FilterImpl<any>[]
+export const builtinFilters = [
+  filterBasic,
+  filterSearch,
+  filterCustom,
+] as const satisfies readonly FilterImpl<any>[]
 
 /** 预制 filter 元组类型 */
 type BuiltinFilter = (typeof builtinFilters)[number]
