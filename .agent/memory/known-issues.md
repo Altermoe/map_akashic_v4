@@ -17,9 +17,9 @@
 
 ## KI-03 零测试覆盖
 
-- **状态**：[ ] open
+- **状态**：[x] fixed（2026-08-21：引入 vitest 最小闭环——`decodeMarkerList` golden、`atlas-layout` 布局数学、`filter-basic/search/custom` 共 25 tests，node 环境。详见 `ROUNDS.md` 第 3 轮。尚未覆盖：filter store Pinia 集成、`sider-menus/plugin/registry`、SFC 薄接线层，续见 `TODO.md`「横切/基建」）
 - **影响**：decode.worker、atlas 布局计算、UV 数学、filter-basic 等纯逻辑无单测，重构无回归兜底。
-- **建议**：引入 vitest，优先覆盖 decode.worker（golden data）、calculateLayout、filter-basic。
+- **建议**：引入 vitest，优先覆盖 decode.worker（golden data）、calculateLayout、filter-basic（已落地）。
 
 ## KI-04 marker 图层整体重建（性能风险）
 
@@ -62,3 +62,9 @@
 - **状态**：[ ] open（无害噪音）
 - **影响**：pnpm build 以生产模式运行 VueRouter 插件，重写 types/router.d.ts（移除 /development 路由），导致构建后工作区出现该文件改动；下次 pnpm dev 会再按 dev 模式重生成回来。
 - **建议**：构建后 git checkout types/router.d.ts；若该生成文件不再需要跟踪，可移出版本控制。
+
+## KI-11 decode.worker 空 itemList 崩溃（`itemList?.[0].iconId` 只对数组短路、不对元素短路）
+
+- **状态**：[x] fixed（2026-08-21：抽 `decodeMarkerList` 纯函数时改为 `itemList?.[0]?.iconId` 经 `toNum` 处理，空数组走 `-1` fallback）
+- **影响**：点位 `itemList` 为空数组时 `itemList?.[0].iconId.toNumber()` 抛 `Cannot read properties of undefined (reading 'iconId')`，解码静默置空/中断，`-1` fallback 路径实际是死代码。与 KI-05「解码失败静默」叠加会更隐蔽。
+- **建议**：保持解码纯函数单测覆盖空 itemList 场景（`decode.test.ts`），`icon` 空数组应返回 `-1`。

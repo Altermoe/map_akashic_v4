@@ -22,3 +22,14 @@
   - `sider-menus/README.md` 补齐插件架构文档。
 - **验证**：`pnpm check:type` 0 error；`pnpm lint` 0 error（仅遗留 `KI-02` protobuf jsdoc warnings）；`pnpm build` ✓ built in 1.75s。
 - **遗留/下一步**：vitest 仍未接入（`KI-03`，计划首测对象含 `sider-menus/plugin/registry`）；`registry.ts` 的版本号方案与 HMR 下的内置条目生命周期可后续打磨（见 TODO「横切/基建」）。
+
+## 2026-08-21 第 3 轮 — 引入 vitest 测试闭环（KI-03）
+
+- **目标**：为 WebGIS 应用接入最小 vitest 测试闭环（node 环境，优先覆盖解码 / atlas 布局 / 筛选纯逻辑），让无 DOM 组件的信息可回归、并给 AI 开发装上「跑相关单测」的闸门。
+- **本轮做了什么**：
+  - 工具骨架：新增 `vitest.config.ts`（独立于 vite.config，默认 node 环境、`@/` 别名、Vue 插件备用；以后 SFC 接线测试再用 jsdom + environmentMatchGlobs）；新增 `pnpm test` / `test:watch`，`precommit` = lint && check:type && test；冒烟 `src/smoke.test.ts`。
+  - 抽出可测纯模块（worker 只留 transport）：`decodeMarkerList`（`src/stores/marker/decode.ts`）+ 修 `itemList?.[0]` 空数组崩溃 bug（记入 KI-11）；atlas 布局数学收敛到 `src/stores/icon/atlas-layout.ts`（`calculateLayout`/`mainIconCell`/`stateCellX`/`atlasDimensions`/`fallbackCell`/`iconPitch`），`render.worker.ts` 改用之（去掉本地重复逻辑）。
+  - 单测：`decode.test.ts`（golden protobuf → `MarkerThin[]`）、`atlas-layout.test.ts`（方形布局 / 状态行预留 / shader 状态列序一致性）、`filter-basic`、`filter-search`、`filter-custom`（seam 替换 store 注入 fake index）。
+  - 同步技能与文档：`map-rendering-pipeline/SKILL.md` 补充「可测缝隙」段 + 空 itemList 陷阱；`AGENTS.md` 常用命令加 test、precommit 闸门更新。
+- **验证**：`pnpm test` 6 files / 25 tests 全绿（~217ms）；`pnpm check:type` 0 error；`pnpm lint` 0 error（仅 KI-02 warnings）；`pnpm build` ✓ built in 1.41s。
+- **遗留/下一步**：`TODO.md`「横切/基建」补 store 集成（filter store Pinia）、`sider-menus/plugin/registry` 测试、（可选 Step 5）`@vue/test-utils`+jsdom 薄接线层。

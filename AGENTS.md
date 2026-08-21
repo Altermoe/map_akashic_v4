@@ -22,8 +22,9 @@ Vue 3.5 · Vue Router 5（文件路由）· Pinia 3 · Vite 8 · **Deck.gl 9.3 +
 | `pnpm build` | 生产构建（**当前被 `src/pages/user/[id].vue` 空文件阻塞**，见 `.agent/memory/known-issues.md`） |
 | `pnpm lint` / `pnpm lint:fix` | oxlint 检查 / 自动修复 |
 | `pnpm check:type` | vue-tsc 类型检查（**改动后必须通过**） |
+| `pnpm test` / `pnpm test:watch` | Vitest 单测（node 环境，覆盖纯逻辑/渲染 seam/筛选 store）；**改动涉及上述场景需跑相关用例** |
 | `pnpm fmt` | oxfmt 格式化 |
-| `pnpm precommit` | lint + typecheck（提交前闸门） |
+| `pnpm precommit` | lint + typecheck + test（提交前闸门） |
 | `pnpm cz` | czg 交互式提交（emoji 规范） |
 | `pnpm proto:build` | 重新生成 protobuf 定义（改了 `src/protobuf/schema/*.proto` 后执行） |
 

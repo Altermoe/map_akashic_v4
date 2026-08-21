@@ -22,9 +22,9 @@ when-to-use: 任务涉及点位/marker 渲染、图标 atlas、MixtureIconLayer�
 | 环节 | 文件 | 要点 |
 | --- | --- | --- |
 | API 配置 | `src/api/services/main/index.ts` | alova 实例；`marker_doc.listMarkersByBinary` 解压为 ArrayBuffer；`icon_doc.listAllIconBinary` 解压为 JSON |
-| 解码 | `src/stores/marker/decode.worker.ts` | `MarkerVoList.decode` → `MarkerThin`：`id/name/pos/icon/isOverlay/itemIds` |
+| 解码 | `src/stores/marker/decode.ts`（纯函数）+ `decode.worker.ts`（transport） | `MarkerVoList.decode` → `MarkerThin`：`id/name/pos/icon/isOverlay/itemIds`；纯函数可直接在 node 测试 |
 | 点位 store | `src/stores/marker/index.ts` | `indexList`（shallowRef）、`itemMarkerIndex`、下载/解码进度接入 asyncStore |
-| 图标合批 | `src/stores/icon/render.worker.ts` | WebGPU 渲染 atlas；`mapping[id]`；fallback 为 `mapping[-1]`；IndexedDB 结果缓存 |
+| 图标合批 | `src/stores/icon/render.worker.ts`（transport/WebGPU）+ `atlas-layout.ts`（纯布局数学） | WebGPU 渲染 atlas；`mapping[id]`；fallback 为 `mapping[-1]`；IndexedDB 结果缓存 |
 | 图标 store | `src/stores/icon/index.ts` | `ICON_STATE` 枚举；`textureUrl`（atlas ObjectURL）与 `mapping` 提供给图层 |
 | 筛选 | `src/stores/filter/index.ts` + `filter-impls/filter-basic.ts` | 反查索引求并集；`result` 按 `pos[1]` 排序 |
 | 图层 | `src/feature/genshin-map/layers/genshin-marker-layer/index.ts` | `GenshinMarkerLayer`(Composite) → `MixtureIconLayer`(IconLayer 子类) |
@@ -36,8 +36,14 @@ when-to-use: 任务涉及点位/marker 渲染、图标 atlas、MixtureIconLayer�
 ### 3.1 数据与解码
 
 - 点位数据是 **gzip 压缩的 protobuf 二进制**（`MarkerVoList`），不是 JSON；解码在 worker 中完成，产出 `MarkerThin` 六字段结构。
-- `icon` 字段 = `itemList[0].iconId`（字符串化），`-1` 代表 fallback。
+- `icon` 字段 = `itemList[0].iconId`（字符串化），`-1` 代表 fallback；**空 `itemList` 时也返回 `-1`**（不要写成 `itemList?.[0].iconId`——`?.` 只对数组短路、不对元素短路，空数组会崩）。
 - `isOverlay` = `extra.underground.isUnderground`，决定 topMask 是否叠加「地下点位」图钉。
+
+> **可测缝隙（vitest，`pnpm test`，node 环境）**：渲染链路里的「非结构化 → 结构化」判定抽成了纯模块，测试直接回归，不依赖 canvas/DOM：
+> - `src/stores/marker/decode.ts` 的 `decodeMarkerList(bytes)`：golden protobuf → `MarkerThin[]`（测试 `decode.test.ts`）；
+> - `src/stores/icon/atlas-layout.ts` 的 `calculateLayout` / `mainIconCell` / `stateCellX` 等纯布局数学（测试 `atlas-layout.test.ts`），`stateCellX(i)=(i+1)*pitch` 与陷阱 3 的 shader 首行列序互相锁定。
+> - 筛选（`filter-impls/*`）用 seam 替换 store（`vi.mock` 注入 fake `itemMarkerIndex` / `typeItemIds`）在 node 测纯逻辑。
+> 改动这批纯模块时跑 `pnpm test` 相关用例即可；WebGPU / deck 本体不入单测。
 
 ### 3.2 图标 atlas 合批（render.worker）
 
