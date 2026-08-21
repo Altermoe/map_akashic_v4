@@ -54,6 +54,7 @@ Vue 3.5 · Vue Router 5（文件路由）· Pinia 3 · Vite 8 · **Deck.gl 9.3 +
 ## 开始干活前
 
 1. 读本文档 + [`.agent/rules/architecture.md`](.agent/rules/architecture.md)（涉及渲染链路时再加读 [map-rendering-pipeline 技能](.agent/skills/map-rendering-pipeline/SKILL.md)）。
-2. 对照 [`tdds/`](tdds/) 与 [`src/feature`](src/feature) 确认功能是否已实现，避免重复造轮子。
-3. 检查 [`.agent/memory/known-issues.md`](.agent/memory/known-issues.md) 是否命中已知问题。
-4. 按 [`.agent/workflows/standard-task.md`](.agent/workflows/standard-task.md) 走完「实现 → 验证 → 提交」闭环。
+2. 读 [`.agent/progress/STATUS.md`](.agent/progress/STATUS.md) **三秒定位当前进度与下一步**；开发任务按 [development-progress 技能](.agent/skills/development-progress/SKILL.md) 走「开发前看 → 开发中按 TODO 做 → 开发后验证并回写账本」闭环。
+3. 对照 [`tdds/`](tdds/) 与 [`src/feature`](src/feature) 确认功能现状，避免重复造轮子。
+4. 检查 [`.agent/memory/known-issues.md`](.agent/memory/known-issues.md) 是否命中已知问题。
+5. 按 [`.agent/workflows/standard-task.md`](.agent/workflows/standard-task.md) 走完「实现 → 验证 → 提交」闭环。

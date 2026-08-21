@@ -8,6 +8,7 @@
 
 - [ ] 读根 AGENTS.md（本会话未加载时）。
 - [ ] 读 .agent/rules/architecture.md + .agent/rules/git-workflow.md。
+- [ ] 读 .agent/progress/STATUS.md 三秒定位进度；查 .agent/progress/TODO.md，把本任务对应项标 [~]（不在清单先加一项）。
 - [ ] 查 .agent/memory/known-issues.md 是否命中本任务。
 
 ### 1. 理解与定位
@@ -43,6 +44,7 @@
 
 ## 收尾
 
+- 回写账本（development-progress 技能闭环）：ROUNDS.md 追加「本轮做了什么/验证/遗留」；TODO.md 勾完成、补下一步；STATUS.md 更新阶段/下一步。
 - 修复了已知问题 → 更新 .agent/memory/known-issues.md（状态改为 fixed）。
 - 踩了新坑 / 有新决策 → 记入 .agent/memory/。
 - 大改动后跑一次 reviewer 角色自审。
