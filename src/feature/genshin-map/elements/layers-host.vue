@@ -25,7 +25,7 @@ const iconStore = useIconStore()
 /** 点位（已筛选）按 pos[1] 升序 → 2.5D 伪深度排序（下方点位先画） */
 const renderMarkers = computed(() => filterStore.result.toSorted((a, b) => a.pos[1] - b.pos[1]))
 
-const TILE_DEBUG = { showTile: false, showBounds: true, showLayout: true, showTileIndex: true }
+const TILE_DEBUG = { showTile: true, showBounds: true, showLayout: true, showTileIndex: true }
 
 /** 按插件 key 汇总当前依赖快照。任何被读取的响应式依赖变化都会触发 host.update。 */
 const buildDeps = (): Partial<Record<string, LayerDependencies>> => ({
