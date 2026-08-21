@@ -13,7 +13,9 @@
     "lint:fix": "oxlint --fix",
     "fmt": "oxfmt",
     "check:type": "vue-tsc --noEmit -p tsconfig.app.json --composite false",
-    "precommit": "pnpm lint && pnpm check:type",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "precommit": "pnpm lint && pnpm check:type && pnpm test",
     "cz": "czg emoji",
     "proto:build": "pbjs -t static-module -w esm -o src/protobuf/index.mjs src/protobuf/schema/*.proto && pbts -o src/protobuf/index.d.ts src/protobuf/index.mjs",
     "svg:generate": "tsx -e \"import { convertSvgToPng } from './infrastructure/svg-renderer'; convertSvgToPng('./src/assets')\""
