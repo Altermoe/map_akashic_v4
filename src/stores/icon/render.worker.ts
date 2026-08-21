@@ -3,11 +3,18 @@ import { getCacheableAsset } from '@/api/services/assets/apiDefinitions'
 import unknownIconUrl from '@/assets/unknown.png?url'
 import { createAsyncConcurrencyFactory } from '@/utils/common'
 import { handleRequest } from '@/utils/worker'
+import {
+  atlasDimensions,
+  calculateLayout,
+  DEFAULT_ICON_GAP,
+  DEFAULT_ICON_SIZE,
+  fallbackCell,
+  mainIconCell,
+  stateCellX,
+} from './atlas-layout'
 import shaderCode from './render.wgsl?raw'
 
 const CONCURRENCY_LIMIT = 100
-const DEFAULT_SIZE = 64
-const DEFAULT_GAP = 1
 const DEFAULT_BACKGROUND: Color = [0, 0, 0, 0]
 
 export type IconMapping = Exclude<Required<IconLayerProps>['iconMapping'], string>
@@ -20,11 +27,6 @@ interface RenderOptions {
   gap: number
   /** 纹理背景色 @default [0,0,0,0] */
   background: [R: number, G: number, B: number, A: number]
-}
-
-interface Layout {
-  cols: number
-  rows: number
 }
 
 export interface RenderResult {
@@ -89,36 +91,6 @@ const ensureDevice = async () => {
   }
 }
 
-const calculateLayout = ({
-  gap,
-  size,
-  maxTextureSize,
-  iconCount,
-  stateCount,
-}: Omit<RenderOptions, 'background'> & {
-  maxTextureSize: number
-  iconCount: number
-  stateCount: number
-}): Layout => {
-  const pitch = size + gap
-  const maxCols = Math.max(1, Math.floor(maxTextureSize / pitch))
-
-  // 从 icon 总数计算的列数：预留 1 行状态后，使整体纹理尽可能接近正方形
-  // 目标 cols ≈ iconRows + 1 且 cols * (cols - 1) >= iconCount
-  const iconCols = iconCount > 0 ? Math.ceil((1 + Math.sqrt(1 + 4 * iconCount)) / 2) : 1
-  // 从状态纹理数计算的列数：fallback + 各状态需在同一行容纳
-  const stateCols = 1 + stateCount
-
-  // 取二者最大值，且不超过纹理尺寸限制
-  const cols = Math.min(Math.max(iconCols, stateCols), maxCols)
-
-  // 行数：预留 1 行状态行 + icon 所需行数
-  const iconRows = Math.ceil(iconCount / cols)
-  const rows = iconRows + 1
-
-  return { cols, rows }
-}
-
 // ==============================     core     ==============================
 handleRequest<RenderRequest, RenderResult>(
   async ({ data: { data, state, render }, send, progress, signal }) => {
@@ -134,7 +106,8 @@ handleRequest<RenderRequest, RenderResult>(
     const maxTextureSize = device.limits.maxTextureDimension2D
 
     // 初始化 mapping
-    const { size = DEFAULT_SIZE, gap = DEFAULT_GAP, background = DEFAULT_BACKGROUND } = render ?? {}
+    const { size = DEFAULT_ICON_SIZE, gap = DEFAULT_ICON_GAP, background = DEFAULT_BACKGROUND } =
+      render ?? {}
     const mapping: IconMapping = Object.create(null)
 
     // 计算布局参数
@@ -147,14 +120,7 @@ handleRequest<RenderRequest, RenderResult>(
     })
 
     // 设置 fallback 用的 unknown 图片
-    const fallbackMapping: IconMapping[string] = {
-      height: size,
-      width: size,
-      x: 0,
-      y: 0,
-      anchorX: size / 2,
-      anchorY: size / 2,
-    }
+    const fallbackMapping = fallbackCell(size)
     mapping[-1] = fallbackMapping
 
     // 请求图片并计算和 set mapping
@@ -245,7 +211,6 @@ handleRequest<RenderRequest, RenderResult>(
     )
 
     // 构建 mapping：第 0 行预留（fallback + 状态），图标从第 1 行开始铺开
-    const pitch = size + gap
     for (let i = 0; i < data.length; i++) {
       const { id } = data[i]
       if (settled[i].status !== 'fulfilled') {
@@ -253,22 +218,17 @@ handleRequest<RenderRequest, RenderResult>(
         mapping[id] = fallbackMapping
         continue
       }
-      const col = i % layout.cols
-      const row = 1 + Math.floor(i / layout.cols)
-      mapping[id] = {
-        x: col * pitch,
-        y: row * pitch,
-        width: size,
-        height: size,
-        anchorX: size / 2,
-        anchorY: size / 2,
-      }
+      mapping[id] = mainIconCell(i, layout.cols, size, gap)
     }
 
     // ============================== WebGPU 精灵矩阵图渲染 ==============================
     progress(82, '初始化 GPU 画布与管线')
-    const atlasWidth = Math.max(1, layout.cols * pitch - gap)
-    const atlasHeight = Math.max(1, layout.rows * pitch - gap)
+    const { width: atlasWidth, height: atlasHeight } = atlasDimensions(
+      layout.cols,
+      layout.rows,
+      size,
+      gap,
+    )
     const canvas = new OffscreenCanvas(atlasWidth, atlasHeight)
     const context = canvas.getContext('webgpu')
     if (!context) {
@@ -349,14 +309,13 @@ handleRequest<RenderRequest, RenderResult>(
     // 添加 state 图标到首行，unknown 图标后
     for (let i = 0; i < (state?.length ?? 0); i++) {
       if (stateSettled[i].status !== 'fulfilled') continue
-      iconsToDraw.push({ bmp: stateBitmaps[i], cellX: (i + 1) * pitch, cellY: 0 })
+      iconsToDraw.push({ bmp: stateBitmaps[i], cellX: stateCellX(i, size, gap), cellY: 0 })
     }
     // 添加主图标
     for (let i = 0; i < data.length; i++) {
       if (settled[i].status !== 'fulfilled') continue
-      const col = i % layout.cols
-      const row = 1 + Math.floor(i / layout.cols)
-      iconsToDraw.push({ bmp: bitmaps[i], cellX: col * pitch, cellY: row * pitch })
+      const cell = mainIconCell(i, layout.cols, size, gap)
+      iconsToDraw.push({ bmp: bitmaps[i], cellX: cell.x, cellY: cell.y })
     }
 
     // 预生成所有 quad 的 NDC 顶点数据（contain 模式）
