@@ -42,7 +42,7 @@ when-to-use: 任何动手改代码 / 做开发任务的会话开始前必读；�
 
 ### 🟡 开发中（对照 TODO 小步推进）
 
-1. 严格按 `TODO.md` **一小步一小步**做：每完成一步即更新标记（`[x]`）并把「下一个小步」标为 `[~]`，再做一次 `pnpm check:type` + `pnpm lint` 闸门。
+1. 严格按 `TODO.md` **一小步一小步**做：每完成一步即更新标记（`[x]`）并把「下一个小步」标为 `[~]`，再做一次 `pnpm fmt` + `pnpm lint` + `pnpm check:type` 闸门。
 2. 严守红线（`architecture.md`，尤其数据链路不得绕行、生成文件勿手改）。
 3. 一步一提交，遵守 `git-workflow.md`（czg 格式、一个提交一件事）。
 4. 中途发现新问题 / 新坑 / 耽搁点 → **先记一笔到 `TODO.md`**（防止丢失），收尾再正式落账。
@@ -50,7 +50,7 @@ when-to-use: 任何动手改代码 / 做开发任务的会话开始前必读；�
 ### 🔴 开发后（收尾闭环，缺一不可）
 
 1. **验证（按面取证，不全量铺开）**：
-   - 必跑：`pnpm check:type` + `pnpm lint`（0 error）。
+   - **必跑（修改完毕后）**：`pnpm fmt` + `pnpm lint` + `pnpm check:type`（格式化干净、0 error）。
    - 涉及页面/构建产物 → `pnpm build` + 受影响开发页冒烟（`src/pages/development/`）。
    - 涉及缓存（atlas/合批/数据）→ 清理对应 IndexedDB / OPFS 命名空间后再验证。
    - 逻辑改动 → 若已有单测（vitest）则跑相关测试；没有则先不硬补，留到 TODO。
@@ -66,7 +66,7 @@ when-to-use: 任何动手改代码 / 做开发任务的会话开始前必读；�
 | 时机 | 动作 |
 | --- | --- |
 | 任务**开始** | `TODO.md` 对应项标 `[~]`（不在清单就先加） |
-| 每完成**小步** | `[x]` 勾上、next 标 `[~]`；跑 check:type / lint |
+| 每完成**小步** | `[x]` 勾上、next 标 `[~]`；跑 fmt / lint / check:type |
 | 任务**收尾** | `validate → commit → ROUNDS/TODO/STATUS 三份同步` |
 | 命中已知问题 | 回复引用 `KI-xx`；修复后回写 `memory/known-issues.md` |
 | 纯查询「到哪了」 | 只读 `STATUS.md`（+ 必要时 TODO），**不回写** |
