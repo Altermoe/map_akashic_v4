@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import type { OrthographicViewState } from 'deck.gl'
-import { useFilterStore, useIconStore } from '@/stores'
 import { SiderToolbar } from './components'
 import DeckGl from './elements/deck-gl.vue'
-import MarkerLayer from './elements/marker-layer.vue'
+import LayersHost from './elements/layers-host.vue'
 import ScrollZoomController from './elements/scroll-zoom-controller.vue'
-import TileLayer from './elements/tile-layer.vue'
 import type { ResolvedTileset } from './types'
 
 const ItemFilter = defineAsyncComponent(() => import('@/feature/sider-menus/item-filter/index.vue'))
@@ -22,15 +20,6 @@ const areaCode = defineModel<string | undefined>('areaCode', {
   required: false,
   default: '',
 })
-
-const filterStore = useFilterStore()
-const iconStore = useIconStore()
-
-const renderMarkers = computed(() =>
-  filterStore.result.toSorted((a, b) => {
-    return a.pos[1] - b.pos[1]
-  }),
-)
 </script>
 
 <template>
@@ -47,19 +36,7 @@ const renderMarkers = computed(() =>
         <ItemSetting />
       </template>
     </SiderToolbar>
-    <TileLayer
-      :deck="deck"
-      :index="0"
-      :data="tileset"
-      :debug="{ showTile: false, showBounds: true, showLayout: true, showTileIndex: true }"
-    />
-    <MarkerLayer
-      :deck="deck"
-      :index="1"
-      :data="renderMarkers"
-      :position-offset="tileset.center"
-      :icon-atlas="iconStore.textureUrl"
-      :icon-mapping="iconStore.mapping"
-    />
+    <!-- 图层插件化：Tile/Marker 不再作为 Vue 组件包装，交由 LayersHost 命令式挂载 builtin 插件 -->
+    <LayersHost :deck="deck" :tileset="tileset" />
   </DeckGl>
 </template>
