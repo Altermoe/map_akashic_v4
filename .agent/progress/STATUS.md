@@ -1,21 +1,21 @@
 # 开发状态 —— 权威快照（三秒定位我在哪）
 
 > 唯一事实来源。本文件保持**单页可扫读**；`TODO.md`/`ROUNDS.md` 是它的补充证据。每轮收尾必须更新；阶段切换时重写。
-> 上次更新：2026-08-21（第 1 轮）。历史见 `ROUNDS.md`。
+> 上次更新：2026-08-21（第 2 轮）。历史见 `ROUNDS.md`。
 
 ## 当前阶段
 
 **Phase 1（基石）收尾** —— 地图渲染 / 瓦片 / 点位解码 / 基础筛选已完成；
 **Phase 2（用户系统/云端同步）刚起步**（TDD-6 地图存档等尚未落地）。
-> 另有关联方向：图层系统插件化已开始重构（proposal/1、2；commit 7a6da4a）。
+> 另有关联方向：图层系统插件化已开始重构（proposal/1、2；commit 7a6da4a）；**侧边栏插件化已落地**（`sider-menus/plugin`，见下）。
 
 ## 当前任务
 
-- 无正在推进的单一实现任务（本轮为 AI Coding 基建：新增 development-progress 技能与进度账本）。
+- 无正在推进的单一实现任务。上一轮完成 **侧边栏插件化重构**（`src/feature/sider-menus/plugin/` 注册中心 + 宿主 `index.vue`，替代 `genshin-map/components/sider-toolbar` 硬编码+slot）。
 
 ## 下一步（最该先做的事）
 
-1. **引入 vitest 最小测试**，优先覆盖 `decode.worker`（golden data）、`calculateLayout`、`filter-basic` —— 命中 `KI-03` 零测试覆盖，且 vitest 依赖已入 `package.json`（commit ef54ce0）。详见 `TODO.md`「横切/基建」。
+1. **引入 vitest 最小测试**，优先覆盖 `decode.worker`（golden data）、`calculateLayout`、`filter-basic`，可加 `sider-menus/plugin/registry` —— 命中 `KI-03` 零测试覆盖，且 vitest 依赖已入 `package.json`（commit ef54ce0）。详见 `TODO.md`「横切/基建」。
 2. 或从 `TODO.md` 任一 `[~]` / 优先级最高项继续（无 `[~]` 时按下一条）。
 
 ## 挂起 / 阻塞

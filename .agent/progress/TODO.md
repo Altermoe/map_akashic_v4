@@ -19,7 +19,8 @@
 
 ## 横切 / 基建
 
-- [ ] **引入 vitest 最小测试闭环**（← 下一步，命中 `KI-03`）：优先 `decode.worker`（golden data）、`calculateLayout`、`filter-basic`。vitest 依赖已在 `package.json`（commit ef54ce0）。落地后在 `AGENTS.md`/`.agent` 补「改动涉及逻辑时跑相关单测」的闸门。
+- [x] **侧边栏插件化落地** — `src/feature/sider-menus/plugin/`（`defineSiderItem` / 响应式注册中心 `registry.ts` / builtin filter·track·locale·setting），宿主 `sider-menus/index.vue` 按注册表动态渲染按钮与拓展面板，替代 `genshin-map/components/sider-toolbar` 硬编码+slot 方案。二开：`registerSiderItem` 注册一份 manifest（icon/name/layout/order/panel）。`registry.ts` 为纯逻辑，可作为 vitest 首测对象之一（配合 `KI-03`）。
+- [ ] **引入 vitest 最小测试闭环**（← 下一步，命中 `KI-03`）：优先 `decode.worker`（golden data）、`calculateLayout`、`filter-basic`（可加 `sider-menus/plugin/registry`）。vitest 依赖已在 `package.json`（commit ef54ce0）。落地后在 `AGENTS.md`/`.agent` 补「改动涉及逻辑时跑相关单测」的闸门。
 - [ ] **插件化架构跟进** — 图层系统已方向化（commit 7a6da4a）；核对 proposal/1、2 与红线 3/10 是否一致，确定 MarkerState 注册中心与 store 注册中心接口。
 - [ ] **补 TDD-4/9 设计占位** — `tdds/4-marker-linkage.md`（点位关联）、`tdds/9-overlay-layers.md`（分层层级）目前为 TODO 占位，排期时先补粗粒度设计。
 
