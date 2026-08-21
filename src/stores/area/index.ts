@@ -1,5 +1,5 @@
-import { defineStore } from 'pinia'
 import { useRequest } from 'alova/client'
+import { defineStore } from 'pinia'
 import Api from '@/api'
 import type { AreaVo } from '@/api/services/main/globals'
 

@@ -54,7 +54,14 @@ describe('decodeMarkerList', () => {
     const out = decodeMarkerList(bytes)
 
     expect(out.map(norm)).toEqual([
-      { id: 1001, name: '风神瞳', pos: [32.5, 41.2], icon: '501', isOverlay: false, itemIds: [2001] },
+      {
+        id: 1001,
+        name: '风神瞳',
+        pos: [32.5, 41.2],
+        icon: '501',
+        isOverlay: false,
+        itemIds: [2001],
+      },
       {
         id: 1002,
         name: '蒲公英',

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { useDraggableResizable } from './use-draggable-resizable'
 import { provideDraggableContext } from './draggable-context'
+import { useDraggableResizable } from './use-draggable-resizable'
 
 export interface DraggableRootProps {
   /** 初始宽度 */

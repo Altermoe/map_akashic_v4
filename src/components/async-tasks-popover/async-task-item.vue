@@ -90,9 +90,7 @@ const statusText = (status: AsyncTask['status']) => {
 
       <!-- 取消按钮 -->
       <button
-        v-if="
-          task.cancellable && (task.status === 'running' || task.status === 'pending')
-        "
+        v-if="task.cancellable && (task.status === 'running' || task.status === 'pending')"
         class="shrink-0 h-5 px-1.5 rounded text-xs text-[--gl-6] hover:bg-[--gl-2] transition-colors"
         title="取消该任务"
         @click="asyncStore.cancel(task.id)"
@@ -128,10 +126,7 @@ const statusText = (status: AsyncTask['status']) => {
     </div>
 
     <!-- 消息 / 错误 -->
-    <div
-      v-if="task.status === 'error'"
-      class="text-xs text-red-500 break-all"
-    >
+    <div v-if="task.status === 'error'" class="text-xs text-red-500 break-all">
       {{ task.error ?? statusText(task.status) }}
     </div>
     <div

@@ -1,11 +1,11 @@
-import path from 'node:path'
 import { readdir, readFile, writeFile } from 'node:fs/promises'
+import path from 'node:path'
 import sharp from 'sharp'
 import { Logger } from './logger'
 
 export async function convertSvgToPng(sourceDir: string): Promise<void> {
   const files = await readdir(sourceDir)
-  const svgFiles = files.filter(file => file.endsWith('.svg'))
+  const svgFiles = files.filter((file) => file.endsWith('.svg'))
 
   if (svgFiles.length === 0) {
     Logger.info(`SVG 转 PNG: ${sourceDir} 目录下未找到 SVG 文件`)

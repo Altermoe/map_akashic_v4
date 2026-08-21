@@ -1,9 +1,4 @@
-export type {
-  SiderItem,
-  SiderLayout,
-  SiderPanel,
-  SiderPanelContext,
-} from './types'
+export type { SiderItem, SiderLayout, SiderPanel, SiderPanelContext } from './types'
 export { defineSiderItem } from './define'
 export {
   clearSiderItems,
@@ -18,8 +13,4 @@ export {
   unregisterSiderItem,
   type UnregisterSiderItem,
 } from './registry'
-export {
-  builtinSiderItems,
-  registerBuiltinSiderItems,
-  type BuiltinSiderItemId,
-} from './builtins'
+export { builtinSiderItems, registerBuiltinSiderItems, type BuiltinSiderItemId } from './builtins'

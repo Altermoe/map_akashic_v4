@@ -10,12 +10,7 @@ const { close } = useDraggableContext()
 </script>
 
 <template>
-  <button
-    class="draggable-close"
-    type="button"
-    :aria-label="ariaLabel || '关闭'"
-    @click="close"
-  >
+  <button class="draggable-close" type="button" :aria-label="ariaLabel || '关闭'" @click="close">
     <slot>
       <!-- 默认 × 图标 -->
       <svg viewBox="0 0 16 16" class="draggable-close__icon" aria-hidden="true">

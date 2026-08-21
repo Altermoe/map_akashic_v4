@@ -1,5 +1,5 @@
-import type { ResolvedTileset } from '../../types'
 import { GenshinTileLayer, type TileLayerDebugOptions } from '../../layers/genshin-tile-layer'
+import type { ResolvedTileset } from '../../types'
 import { defineLayerPlugin } from '../define'
 import type { LayerDependencies } from '../types'
 

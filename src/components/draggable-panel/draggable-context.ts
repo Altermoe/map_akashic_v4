@@ -63,15 +63,12 @@ export function provideDraggableContext(context: DraggableContext): void {
 export function useDraggableContext(): DraggableContext {
   const context = inject(draggableContextKey, null)
   if (!context) {
-    const compName = (
+    const compName =
       new Error().stack
         ?.split('\n')
         .find((line) => line.includes('.vue'))
         ?.match(/([\w-]+\.vue)/)?.[1] ?? '子组件'
-    )
-    throw new Error(
-      `<${compName}> 必须放在 <DraggableRoot> 组件内部使用。`,
-    )
+    throw new Error(`<${compName}> 必须放在 <DraggableRoot> 组件内部使用。`)
   }
   return context
 }

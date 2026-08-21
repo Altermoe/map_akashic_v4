@@ -75,7 +75,9 @@ export function getSiderItems(): SiderItem[] {
 
 /** 指定分区（或全部）的已注册条目，按 order 升序（插入序保序）。 */
 export function getSiderItemsByLayout(layout?: SiderLayout): SiderItem[] {
-  const items = layout ? [...registry.values()].filter((i) => i.layout === layout) : [...registry.values()]
+  const items = layout
+    ? [...registry.values()].filter((i) => i.layout === layout)
+    : [...registry.values()]
   return items.sort(sortByOrder)
 }
 

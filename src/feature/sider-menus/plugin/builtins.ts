@@ -1,14 +1,14 @@
 import { h } from 'vue'
 import RegularFilter from '@/ui/g-icons/regular-filter.vue'
-import RegularLocation from '@/ui/g-icons/regular-location.vue'
 import RegularLocale from '@/ui/g-icons/regular-locale.vue'
+import RegularLocation from '@/ui/g-icons/regular-location.vue'
 import RegularSetting from '@/ui/g-icons/regular-setting.vue'
-import type { SiderItem, SiderPanelContext } from './types'
 import ItemFilter from '../item-filter/index.vue'
 import ItemLocale from '../item-locale/index.vue'
 import ItemSetting from '../item-setting/index.vue'
 import { defineSiderItem } from './define'
 import { hasSiderItem, registerSiderItem } from './registry'
+import type { SiderItem, SiderPanelContext } from './types'
 
 /**
  * 内置侧边栏条目（builtin，随内核编入，作为「二开范本」）。
@@ -25,7 +25,7 @@ export const builtinSiderItems = [
     order: 10,
     panel: (ctx: SiderPanelContext) =>
       h(ItemFilter, {
-        areaCode: ctx.areaCode,
+        'areaCode': ctx.areaCode,
         'onUpdate:areaCode': (v: string | undefined) => ctx.setAreaCode?.(v),
       }),
   }),

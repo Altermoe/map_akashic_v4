@@ -1,9 +1,4 @@
-export type {
-  LayerDependencies,
-  LayerPlugin,
-  LayerPluginContext,
-  LayerSlot,
-} from './types'
+export type { LayerDependencies, LayerPlugin, LayerPluginContext, LayerSlot } from './types'
 export { defineLayerPlugin } from './define'
 export {
   clearLayerPlugins,

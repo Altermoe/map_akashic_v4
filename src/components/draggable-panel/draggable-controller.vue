@@ -6,11 +6,7 @@ const { onHandleDown, titleId } = useDraggableContext()
 
 <template>
   <!-- 标题栏（拖拽区） -->
-  <div
-    class="draggable-controller"
-    :id="titleId"
-    @pointerdown="onHandleDown('move', $event)"
-  >
+  <div class="draggable-controller" :id="titleId" @pointerdown="onHandleDown('move', $event)">
     <slot />
   </div>
 </template>

@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type { ResolvedTileset } from './types'
+import SiderMenus from '@/feature/sider-menus/index.vue'
 import DeckGl from './elements/deck-gl.vue'
 import LayersHost from './elements/layers-host.vue'
 import ScrollZoomController from './elements/scroll-zoom-controller.vue'
-import SiderMenus from '@/feature/sider-menus/index.vue'
+import type { ResolvedTileset } from './types'
 
 defineProps<{
   tileset: ResolvedTileset

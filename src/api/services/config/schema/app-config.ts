@@ -90,7 +90,7 @@ const configExtraSchema = z
   .object({
     '1_6_island': configExtra16IslandSchema.optional(),
     '2_8_island': configExtra28IslandSchema.optional(),
-    underground: configExtraUndergroundSchema.optional(),
+    'underground': configExtraUndergroundSchema.optional(),
   })
   .meta({ description: '附加配置' })
 /** 附加配置 */

@@ -106,8 +106,11 @@ handleRequest<RenderRequest, RenderResult>(
     const maxTextureSize = device.limits.maxTextureDimension2D
 
     // 初始化 mapping
-    const { size = DEFAULT_ICON_SIZE, gap = DEFAULT_ICON_GAP, background = DEFAULT_BACKGROUND } =
-      render ?? {}
+    const {
+      size = DEFAULT_ICON_SIZE,
+      gap = DEFAULT_ICON_GAP,
+      background = DEFAULT_BACKGROUND,
+    } = render ?? {}
     const mapping: IconMapping = Object.create(null)
 
     // 计算布局参数

@@ -42,7 +42,10 @@ describe('atlas-layout', () => {
     })
 
     it('无图标时仍回退到 1x1 状态行', () => {
-      expect(calculateLayout({ ...BASE, iconCount: 0, stateCount: 0 })).toEqual({ cols: 1, rows: 1 })
+      expect(calculateLayout({ ...BASE, iconCount: 0, stateCount: 0 })).toEqual({
+        cols: 1,
+        rows: 1,
+      })
     })
   })
 

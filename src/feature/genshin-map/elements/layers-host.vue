@@ -14,8 +14,8 @@ import { builtinLayerPlugins, registerBuiltinLayerPlugins } from '../plugins/bui
 import { markerLayerPlugin } from '../plugins/builtins/marker-layer'
 import { tileLayerPlugin } from '../plugins/builtins/tile-layer'
 import { LayerHost } from '../plugins/layer-host'
-import type { LayerDependencies } from '../plugins/types'
 import type { UnregisterLayerPlugin } from '../plugins/registry'
+import type { LayerDependencies } from '../plugins/types'
 
 const props = defineProps<GenshinLayersHostProps>()
 
