@@ -53,7 +53,7 @@ describe('decodeMarkerList', () => {
 
     const out = decodeMarkerList(bytes)
 
-    expect(out.map(norm)).toEqual([
+    expect(out.thinList.map(norm)).toEqual([
       {
         id: 1001,
         name: '风神瞳',

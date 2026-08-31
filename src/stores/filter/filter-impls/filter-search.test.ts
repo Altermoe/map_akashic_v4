@@ -20,9 +20,9 @@ const ctx: FilterContext = {
 }
 
 const markers: MarkerThin[] = [
-  { id: '1', name: '风神瞳', icon: '1', pos: [0, 0], isOverlay: false, itemIds: [10] },
-  { id: '2', name: '蒲公英', icon: '2', pos: [1, 1], isOverlay: false, itemIds: [20] },
-  { id: '3', name: 'Wind Mill', icon: '3', pos: [2, 2], isOverlay: false, itemIds: [30] },
+  { id: 1, name: '风神瞳', icon: '1', pos: [0, 0], isOverlay: false, itemIds: [10] },
+  { id: 2, name: '蒲公英', icon: '2', pos: [1, 1], isOverlay: false, itemIds: [20] },
+  { id: 3, name: 'Wind Mill', icon: '3', pos: [2, 2], isOverlay: false, itemIds: [30] },
 ]
 
 describe('filterSearch', () => {

@@ -5,11 +5,12 @@ import { useAsyncStore } from '@/stores/async'
 // oxlint-disable-next-line import/default
 import markerStateWorkerUrl from '@/stores/marker/decode.worker?worker&url'
 import type { MarkerDecodeOutput, MarkerDecodeInput } from '@/stores/marker/decode.worker'
+import { decodeIndex } from '@/stores/marker/indexMapCodec'
 import { invokeWorker } from '@/utils/worker'
 
 export interface MarkerThin {
   /** 点位 id */
-  id: string
+  id: number
   /** 点位名称 */
   name: string
   /** 用于地图点位渲染的主图标 id */
@@ -34,6 +35,10 @@ const ensureWorker = () => {
   return worker
 }
 
+const EMPTY_MARKER_LIST: MarkerThin[] = []
+const EMPTY_MARKER_BUFFER = new ArrayBuffer()
+const EMPTY_MARKER_INDEX = new Map<number, Set<number>>()
+
 export const useMarkerStore = defineStore('item', () => {
   const asyncStore = useAsyncStore()
 
@@ -45,10 +50,7 @@ export const useMarkerStore = defineStore('item', () => {
     onSuccess: onRequestSuccess,
     onError: onRequestError,
   } = useRequest(Api.main.marker_doc.listMarkersByBinary(), {
-    initialData: {
-      markers: [],
-      users: {},
-    },
+    initialData: EMPTY_MARKER_BUFFER,
   })
 
   // 将请求过程接入 useAsyncStore：loading 触发时创建任务，downloading 汇报进度，
@@ -104,35 +106,24 @@ export const useMarkerStore = defineStore('item', () => {
     clearRequestTask()
   })
 
-  const indexList = shallowRef<MarkerThin[]>([])
+  const indexList = shallowRef<MarkerThin[]>(EMPTY_MARKER_LIST)
 
-  /** 反查索引：itemId -> 包含该物品的 marker id 集合，供 filter 高效查询 */
-  const itemMarkerIndex = computed(() => {
-    const index = new Map<number, Set<string>>()
-    for (const marker of indexList.value) {
-      if (!marker.itemIds) continue
-      for (const itemId of marker.itemIds) {
-        let set = index.get(itemId)
-        if (!set) {
-          set = new Set()
-          index.set(itemId, set)
-        }
-        set.add(marker.id)
-      }
-    }
-    return index
-  })
+  /** 反查索引：itemId -> 包含该物品的 marker id 集合 */
+  const itemMarkerIndex = shallowRef<Map<number, Set<number>>>()
+
+  /** 反查索引：itemId -> 包含该图标的 marker id 集合 */
+  const iconMarkerIndex = shallowRef<Map<number, Set<number>>>()
 
   let currentController: AbortController | null = null
 
   watch(
     () => data.value,
-    async (value) => {
+    async (buffer) => {
       currentController?.abort()
 
-      const markerData = toRaw(value)
+      const markerData = toRaw(buffer)
       if (!markerData || !(markerData instanceof ArrayBuffer)) {
-        indexList.value = []
+        indexList.value = EMPTY_MARKER_LIST
         return
       }
 
@@ -154,10 +145,14 @@ export const useMarkerStore = defineStore('item', () => {
           },
         )
         if (controller.signal.aborted) return
-        indexList.value = res
+        indexList.value = res.thinList
+        itemMarkerIndex.value = decodeIndex(res.itemMarkerIndex)
+        iconMarkerIndex.value = decodeIndex(res.iconMarkerIndex)
       } catch {
         if (controller.signal.aborted) return
-        indexList.value = []
+        indexList.value = EMPTY_MARKER_LIST
+        itemMarkerIndex.value = EMPTY_MARKER_INDEX
+        iconMarkerIndex.value = EMPTY_MARKER_INDEX
       } finally {
         if (currentController === controller) currentController = null
       }
@@ -167,6 +162,7 @@ export const useMarkerStore = defineStore('item', () => {
 
   return {
     indexList: indexList as Readonly<ShallowRef<MarkerThin[]>>,
-    itemMarkerIndex,
+    itemMarkerIndex: itemMarkerIndex as Readonly<ShallowRef<Map<number, Set<number>>>>,
+    iconMarkerIndex: iconMarkerIndex as Readonly<ShallowRef<Map<number, Set<number>>>>,
   }
 })

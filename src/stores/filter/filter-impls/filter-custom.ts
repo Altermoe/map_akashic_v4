@@ -33,7 +33,7 @@ export const filterCustom = defineFilter({
     if (!itemIds.size) return []
 
     const { itemMarkerIndex } = useMarkerStore()
-    const matchingIds = new Set<string>()
+    const matchingIds = new Set<number>()
     for (const itemId of itemIds) {
       const set = itemMarkerIndex.get(itemId)
       if (set) {

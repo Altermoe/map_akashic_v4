@@ -33,9 +33,9 @@ const ctx: FilterContext = {
 }
 
 const markers: MarkerThin[] = [
-  { id: 'a', name: 'A', icon: '1', pos: [0, 0], isOverlay: false, itemIds: [10] },
-  { id: 'b', name: 'B', icon: '2', pos: [1, 1], isOverlay: false, itemIds: [20] },
-  { id: 'c', name: 'C', icon: '3', pos: [2, 2], isOverlay: false, itemIds: [30] },
+  { id: 1, name: 'A', icon: '1', pos: [0, 0], isOverlay: false, itemIds: [10] },
+  { id: 2, name: 'B', icon: '2', pos: [1, 1], isOverlay: false, itemIds: [20] },
+  { id: 3, name: 'C', icon: '3', pos: [2, 2], isOverlay: false, itemIds: [30] },
 ]
 
 const indexOf = (pairs: [number, string[]][]): Map<number, Set<string>> =>

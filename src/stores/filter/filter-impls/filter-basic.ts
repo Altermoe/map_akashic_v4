@@ -17,7 +17,7 @@ export const filterBasic = defineFilter({
     const { itemMarkerIndex } = useMarkerStore()
 
     // 反查索引：收集所有匹配的 marker id
-    const matchingIds = new Set<string>()
+    const matchingIds = new Set<number>()
     for (const itemId of itemIds) {
       const set = itemMarkerIndex.get(itemId)
       if (set) {
