@@ -13,6 +13,7 @@
     "types": ["vite/client", "vue-router/auto", "@webgpu/types"],
     "strict": true,
     "forceConsistentCasingInFileNames": true,
+    "verbatimModuleSyntax": true,
     "skipLibCheck": true,
     "noEmit": true,
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.buildinfo"
