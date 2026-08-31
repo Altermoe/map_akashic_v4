@@ -7,19 +7,19 @@ scene: git_message
 根据提交信息使用如下提交类型，同时根据提交类型，在提交标签（含 scope）后、具体信息前插入对应的 emoji。
 ```json
 [
-  { "value": "feat", "emoji": ":sparkles:" },
-  { "value": "fix", "emoji": ":bug:" },
-  { "value": "docs", "emoji": ":memo:" },
-  { "value": "style", "emoji": ":lipstick:" },
-  { "value": "refactor", "emoji": ":recycle:" },
-  { "value": "perf", "emoji": ":zap:" },
-  { "value": "test", "emoji": ":white_check_mark:" },
-  { "value": "build", "emoji": ":green_heart:" },
-  { "value": "ci", "emoji": ":rocket:" },
-  { "value": "revert", "emoji": ":rewind:" },
-  { "value": "chore", "emoji": ":fire:" },
-  { "value": "deps", "emoji": ":package:" },
-  { "value": "init", "emoji": ":tada:" }
+  { "value": "feat", "emoji": "✨" },
+  { "value": "fix", "emoji": "🐛" },
+  { "value": "docs", "emoji": "📝" },
+  { "value": "style", "emoji": "💄" },
+  { "value": "refactor", "emoji": "♻️" },
+  { "value": "perf", "emoji": "⚡️" },
+  { "value": "test", "emoji": "✅" },
+  { "value": "build", "emoji": "💚" },
+  { "value": "ci", "emoji": "🚀" },
+  { "value": "revert", "emoji": "⏪️" },
+  { "value": "chore", "emoji": "🔥" },
+  { "value": "deps", "emoji": "📦️" },
+  { "value": "init", "emoji": "🎉" }
 ]
 ```
 
