@@ -11,6 +11,8 @@
 
 ## Phase 1 收尾 —— 稳健与性能（可并行）
 
+- [x] **点位加载改为分页并发**（本轮）— `src/stores/marker/index.ts` 弃用全量 `listMarkersByBinary`，改 `listMarkerBinaryMD5` → 并发 `listPageMarkerByBinary`；`useSerialRequest` 锚定「先取清单」，动态分页并发窗（4）；dexie 缓存 manifest（`MANIFEST_TTL`）+ 分页原始二进制（`marker:page:{md5}:{time}`），`purgeStalePages` 清历史；倒排索引**不缓存**、每次由 worker 整体重算再 `mergeDecodedPages` union。新增 `cache.ts`/`merge.ts` + vitest（cache 用 fake-indexeddb、merge 纯函数）。
+- [x] **API 层给分页接口补 transform** — `api/services/main/index.ts` 为 `list_page_bin/{md5}` 加 gzip→ArrayBuffer（OpenAPI 误标 `string[]`，实为二进制流）。
 - [ ] **`KI-04` marker 图层整体重建** → 固定 layer id + props/`updateTriggers` 驱动，避免每次数据变化都 `new GenshinMarkerLayer`。改前读 `map-rendering-pipeline` 技能（陷阱 4）。
 - [ ] **`KI-07` 状态混合缺「替换」语义** — 引入原始纹理透传开关/替换路径后再落地 active/inactive 变体。（红线 3：经 MarkerState 注册中心，勿手改 shader 常量）
 - [ ] **`KI-09` 图标渲染任务不可取消** — `runRender` 增加 AbortController，复用 asyncStore 模式。

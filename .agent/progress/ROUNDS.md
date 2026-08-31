@@ -33,3 +33,15 @@
   - 同步技能与文档：`map-rendering-pipeline/SKILL.md` 补充「可测缝隙」段 + 空 itemList 陷阱；`AGENTS.md` 常用命令加 test、precommit 闸门更新。
 - **验证**：`pnpm test` 6 files / 25 tests 全绿（~217ms）；`pnpm check:type` 0 error；`pnpm lint` 0 error（仅 KI-02 warnings）；`pnpm build` ✓ built in 1.41s。
 - **遗留/下一步**：`TODO.md`「横切/基建」补 store 集成（filter store Pinia）、`sider-menus/plugin/registry` 测试、（可选 Step 5）`@vue/test-utils`+jsdom 薄接线层。
+
+## 2026-08-21 第 4 轮 — 点位加载改分页并发 + dexie 缓存
+
+- **目标**：弃用全量 `listMarkersByBinary`，改 MD5 清单 + 分页并发加载，用 dexie 缓存二进制并支持过期/增量；倒排索引保持由 worker 整体重算。
+- **本轮做了什么**：
+  - 排查确认两个接口形态（`listMarkerBinaryMD5`=JSON 清单；`listPageMarkerByBinary`=OpenAPI 误标 `string[]` 的 gzip 二进制流）。
+  - `api/services/main/index.ts`：为 `list_page_bin/{md5}` 加 `DecompressionStream(gzip)`→ArrayBuffer transform。
+  - 新增 `src/stores/marker/cache.ts`（`buildMarkerCache` 注入 kv 表，manifest/page 读写、`MANIFEST_TTL`、`purgeStalePages`）、`merge.ts`（`mergeDecodedPages` 多分页 thin+倒排索引 union）。
+  - 重写 `src/stores/marker/index.ts`：`useSerialRequest` 锚定清单，并发窗(4)拉缺失分页（单页重试一次后 partial 降级）、全部分页整体重解码、合并索引、`purgeStalePages`；暴露 `refresh()`。
+  - 测试：`cache.test.ts`（fake-indexeddb 注入）、`merge.test.ts`。新增 +8 tests 全绿。
+- **验证**：`pnpm check:type` 0 error；`pnpm lint` 0 error；`pnpm build` ✓（1.19s）；`pnpm test` 30 passed / 5 failed（**5 个失败为基线既有**：filter-basic/custom 各 2、decode「空列表」断言错误 1，均与本轮无关）。
+- **遗留/下一步**：`fake-indexeddb` 已入 devDeps；`KI-04`(图层重建) 可并行；基线 5 个测试失败待修（含 decode.test「空列表返回空数组」阈值写错）。

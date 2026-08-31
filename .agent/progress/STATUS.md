@@ -1,7 +1,7 @@
 # 开发状态 —— 权威快照（三秒定位我在哪）
 
 > 唯一事实来源。本文件保持**单页可扫读**；`TODO.md`/`ROUNDS.md` 是它的补充证据。每轮收尾必须更新；阶段切换时重写。
-> 上次更新：2026-08-21（第 3 轮）。历史见 `ROUNDS.md`。
+> 上次更新：2026-08-21（第 4 轮）。历史见 `ROUNDS.md`。
 
 ## 当前阶段
 
@@ -11,12 +11,15 @@
 
 ## 当前任务
 
-- 无正在推进的单一实现任务。上一轮完成 **vitest 最小测试闭环接入**：`vitest.config.ts` + `pnpm test` 闸门，纯模块 seam 化（`decodeMarkerList` / `atlas-layout`），覆盖 decode/atlas-布局/filter-basic·search·custom 共 **25 tests**（详见 `ROUNDS.md` 第 3 轮）。
+- 无正在推进的单一实现任务。上一轮（第 4 轮）完成 **点位加载改分页并发 + dexie 缓存**：弃用全量 `listMarkersByBinary`，改 `listMarkerBinaryMD5` + 并发 `listPageMarkerByBinary`；`useSerialRequest` 锚定「先取清单」；dexie 缓存 manifest 与分页二进制、`purgeStalePages` 清理；倒排索引不缓存、每次 worker 整体重算（`mergeDecodedPages`）。配套：API transform、`cache.ts`/`merge.ts` + vitest（cache 用 fake-indexeddb）。详见 `ROUNDS.md` 第 4 轮。
 
 ## 下一步（最该先做的事）
 
-1. **测试覆盖扩展（续 `KI-03` 未覆盖面）**：优先补 **filter store 的 Pinia 集成测试**（`applyFilter`/`clearFilter` 全路径，含并发 token + AbortController 竞态，即多状态契约回归）；可加 `sider-menus/plugin/registry` 纯逻辑测试。详见 `TODO.md`「横切/基建」。
-2. 或从 `TODO.md` 任一 `[~]` / 优先级最高项继续（无 `[~]` 时按下一条）——如 **`KI-04` marker 图层重建**（改前读 `map-rendering-pipeline` 技能，可能顺势抽 `composeLayers` planner 加回归）。
+1. **修基线 5 个既有测试失败**（影响 `pnpm test` 全绿）：
+   - `src/stores/marker/decode.test.ts`「空列表返回空数组」—— 断言写错（`decodeMarkerList` 返回 `{thinList,...}` 对象而非裸数组）。
+   - `filter-basic`/`filter-custom` 各 2 个 —— 应在 commit `c661dd3`（`marker/filter` 统一 marker id 类型）后同步断言，当前属回归。
+2. **测试覆盖扩展（续 `KI-03` 未覆盖面）**：优先补 **filter store 的 Pinia 集成测试**（`applyFilter`/`clearFilter` 全路径，含并发 token + AbortController 竞态，即多状态契约回归）；可加 `sider-menus/plugin/registry` 纯逻辑测试。详见 `TODO.md`「横切/基建」。
+3. 或从 `TODO.md` 任一 `[~]` / 优先级最高项继续（无 `[~]` 时按下一条）——如 **`KI-04` marker 图层重建**（改前读 `map-rendering-pipeline` 技能）。
 
 ## 挂起 / 阻塞
 
