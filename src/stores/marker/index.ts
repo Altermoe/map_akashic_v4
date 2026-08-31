@@ -10,7 +10,6 @@ import type { MarkerDecodeOutput, MarkerDecodeInput } from '@/stores/marker/deco
 import { decodeIndex } from '@/stores/marker/indexMapCodec'
 import { mergeDecodedPages } from '@/stores/marker/merge'
 import { invokeWorker } from '@/utils/worker'
-
 export interface MarkerThin {
   /** 点位 id */
   id: number
@@ -173,7 +172,11 @@ export const useMarkerStore = defineStore('item', () => {
                 transfer: [transferable],
                 signal,
               },
-            )
+            ).catch((error) => {
+              console.error('解码失败', error)
+              return null
+            })
+            if (!res) continue
             decodedPages.push({
               thinList: res.thinList,
               itemMarkerIndex: decodeIndex(res.itemMarkerIndex),
