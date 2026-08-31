@@ -5,13 +5,13 @@ import {
   LineLayer,
   PolygonLayer,
   TextLayer,
-  LayerContext,
+  type LayerContext,
 } from 'deck.gl'
 import type { CompositeLayerProps, Layer, UpdateParameters } from 'deck.gl'
 import Api from '@/api'
 import type { GenshinDeck } from '../../core/genshin-deck'
 import type { ResolvedTileset } from '../../types'
-import { GenshinLayer } from '../../types'
+import type { GenshinLayer } from '../../types'
 import { onReady } from '../../utils'
 import { easeOutQuart } from '../../utils/transition-easing'
 

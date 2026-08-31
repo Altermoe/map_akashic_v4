@@ -89,4 +89,4 @@ const Apis = createApis(alovaInstance, $$userConfigMap)
 
 export default Apis
 
-export { ApiTypes }
+export type { ApiTypes }

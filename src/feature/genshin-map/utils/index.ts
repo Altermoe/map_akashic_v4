@@ -1,5 +1,5 @@
 import type { Deck, OrthographicView, View } from 'deck.gl'
-import { GenshinLayer } from '../types'
+import type { GenshinLayer } from '../types'
 
 export const removeLayerFrom = (
   deck: Deck<OrthographicView>,
