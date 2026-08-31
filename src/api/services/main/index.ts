@@ -83,6 +83,16 @@ export const $$userConfigMap = withConfigType({
       return buffer
     },
   },
+  // OpenAPI 误将返回类型解析为 string[]，实际每个分页是无头 gzip 二进制（MarkerVoList protobuf）。
+  // 与 listMarkersByBinary 同路径显式解压为 ArrayBuffer，供 decode.worker 解码。
+  'marker_doc.listPageMarkerByBinary': {
+    transform: async (originResponse) => {
+      const res = originResponse as unknown as Response
+      const ds = new DecompressionStream('gzip')
+      const buffer = await new Response(res.body?.pipeThrough(ds)).arrayBuffer()
+      return buffer
+    },
+  },
 })
 
 const Apis = createApis(alovaInstance, $$userConfigMap)
