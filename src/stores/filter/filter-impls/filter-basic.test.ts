@@ -3,7 +3,7 @@ import type { MarkerThin } from '@/stores/marker'
 import type { FilterContext } from './index'
 
 const state = vi.hoisted(() => ({
-  itemMarkerIndex: new Map<number, Set<string>>(),
+  itemMarkerIndex: new Map<number, Set<number>>(),
 }))
 
 // 只测 filter-basic 的集合逻辑，用受控 fake 替换 useMarkerStore 的反查索引（seam Provider 替换）。
@@ -29,14 +29,14 @@ const markers: MarkerThin[] = [
   { id: 3, name: 'C', icon: '3', pos: [2, 2], isOverlay: false, itemIds: [] },
 ]
 
-const indexOf = (pairs: [number, string[]][]): Map<number, Set<string>> =>
+const indexOf = (pairs: [number, number[]][]): Map<number, Set<number>> =>
   new Map(pairs.map(([k, v]) => [k, new Set(v)]))
 
 beforeEach(() => {
   state.itemMarkerIndex = indexOf([
-    [10, ['a']],
-    [20, ['b']],
-    [30, ['b']],
+    [10, [1]],
+    [20, [2]],
+    [30, [2]],
   ])
 })
 
@@ -47,8 +47,8 @@ describe('filterBasic（物品筛选，反查索引求并集）', () => {
 
   it('多物品 id 求并集，且保持输入顺序', () => {
     state.itemMarkerIndex = indexOf([
-      [10, ['a']],
-      [20, ['b']],
+      [10, [1]],
+      [20, [2]],
     ])
     expect(filterBasic.apply(markers, { itemIds: [10, 20] }, ctx)).toEqual([markers[0], markers[1]])
   })

@@ -6,7 +6,7 @@ const state = vi.hoisted(() => ({
   catalogLoaded: true,
   ensureLoaded: () => {},
   typeItemIds: new Map<number, number[]>(),
-  itemMarkerIndex: new Map<number, Set<string>>(),
+  itemMarkerIndex: new Map<number, Set<number>>(),
 }))
 
 // seam Provider 替换：替换两个 store 的可控 fake，只测自定义筛选的组合逻辑
@@ -38,7 +38,7 @@ const markers: MarkerThin[] = [
   { id: 3, name: 'C', icon: '3', pos: [2, 2], isOverlay: false, itemIds: [30] },
 ]
 
-const indexOf = (pairs: [number, string[]][]): Map<number, Set<string>> =>
+const indexOf = (pairs: [number, number[]][]): Map<number, Set<number>> =>
   new Map(pairs.map(([k, v]) => [k, new Set(v)]))
 
 beforeEach(() => {
@@ -49,9 +49,9 @@ beforeEach(() => {
     [2, [30]],
   ])
   state.itemMarkerIndex = indexOf([
-    [10, ['a']],
-    [20, ['b']],
-    [30, ['c']],
+    [10, [1]],
+    [20, [2]],
+    [30, [3]],
   ])
 })
 
