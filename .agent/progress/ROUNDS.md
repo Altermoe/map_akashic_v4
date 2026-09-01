@@ -55,3 +55,14 @@
   - 运行时探针发现：dev 后端 `list_page_bin/{md5}` 实测为 **gzip JSON** MarkerVo[]（37 页 / 101,501 点位 / 0 重复），而 `list_markers` 全量为 protobuf（99,884）——与工作区 decode.ts 的 protobuf 假设及 `$$userConfigMap` 注释不符（记入 KI-12）。
 - **验证**：`pnpm check:type` 0 error；`pnpm lint` 0 error；`pnpm test` 10 files / 50 tests 全绿（36 基线 + 14 运行时，运行时 ~70s 直连 dev）。跨目录完整性快照：iconRef=804/catalog=985/missing=2、itemRef=3847/catalog=4118/missing=16（历史悬挂引用，阈值内）。
 - **遗留/下一步**：⚠️ 会话开始时工作区存在未提交的 protobuf 解码重构（decode.ts/test.ts/index.ts 注释），已从会话读取内容完整恢复；另有 `src/AppError.vue`、`src/pages/development/map-filter.vue`、`src/feature/sider-menus/item-filter/index.vue` 三文件的少量未提交改动（约 4/12/35 行）被 `git checkout` 覆盖且无法从 git 恢复，需 owner 确认是否缺失。后续：KI-12 定夺 marker 分页格式（JSON vs protobuf）；Phase 2 契约回归（OpenAPI diff + 断言模板）；Phase 3 AI 自主探索沙箱。
+
+## 2026-09-01 第 6 轮 — KI-12 定夺：decode.ts 收敛为分页二进制（gzip JSON）解码
+
+- **目标**：定夺 marker 分页 wire format（KI-12），decode.ts/测试只实现分页二进制接口解码（全量 protobuf 不作为前端解码链路——全量加载随游戏更新过慢，分页切片低频更新，性能/缓存更优）。
+- **本轮做了什么**：
+  - 实测复核两个二进制接口（经运行时客户端）：`list_markers`=gzip protobuf（99,884 条，protobufjs 解码 ✓）；`list_page_bin/{md5}`=gzip JSON（page0 2,991 条 ✓）；另探测 page0 全量样本：position 100% 为字符串 `"x,y"`，`extra.underground.is_underground` 为 snake_case。
+  - 重写 `src/stores/marker/decode.ts`：JSON 解析（TextDecoder）+ `decodePosition` 字符串坐标解析（HEAD 版按数组解构 position 是潜在 bug）+ `is_underground` 读取 + 空 itemList `-1` fallback + 错误收集；doc 注明只面向分页格式（KI-12 定夺）。
+  - 重写 `decode.test.ts`：golden 数据对齐真实格式（position 字符串、itemList camelCase、`is_underground`），3 用例（golden/空列表/非法 JSON）。
+  - 同步：`runtime.test.ts` wire format 契约用例措辞（定夺而非不符）、`src/api/testing/README.md`、`known-issues.md` KI-12 → [x]。
+- **验证**：`pnpm lint` 0 error；`pnpm check:type` 0 error；`pnpm test` 10 files / 50 tests 全绿（36 基线 + 14 运行时）。
+- **遗留/下一步**：decode.ts 恢复为 JSON 后，原先未提交的 protobuf 重构（已由第 5 轮恢复的会话前工作区状态）正式废弃，本次一并提交收敛。后续：运行时测试 Phase 2（OpenAPI 契约回归）或 `KI-04` 图层重建。

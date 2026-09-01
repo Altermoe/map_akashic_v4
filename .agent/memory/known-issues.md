@@ -71,6 +71,6 @@
 
 ## KI-12 marker 分页接口 wire format：dev 后端实测为 gzip JSON，与 protobuf 假设/注释不符
 
-- **状态**：[ ] open（2026-09-01 运行时探针发现，记入第 5 轮）
-- **影响**：`list_page_bin/{md5}` 实测返回 gzip 压缩的 **JSON MarkerVo[]**（37 页 / 101,501 点位 / 跨页 id 零重复），而 `list_markers`（全量）返回 gzip **protobuf** MarkerVoList（99,884 条）。当前工作区 `src/stores/marker/decode.ts`（未提交的 protobuf 重构）与 `src/api/services/main/index.ts` 的 `$$userConfigMap` 注释（「该接口返回的是 MarkerVoList protobuf」）均按 protobuf 假设——若按此上线，浏览器端分页解码会失败（protobuf 解码 JSON 字节抛 invalid tag encoding），地图空白。
-- **建议**：以运行时测试为准（`src/api/testing/runtime.test.ts` 已固化「gzip JSON」契约作为 canary，格式一变即红）；在 commit protobuf 解码前需确认后端是否切换格式，或把 decode 收敛回 JSON（HEAD 的 c5f0240 提交即为 JSON 解码，与 dev 后端一致）。
+- **状态**：[x] fixed（2026-09-01 第 6 轮定夺：**decode.ts 只实现分页二进制接口（gzip JSON）解码**——全量接口随游戏更新加载过慢，分页切片低频更新是性能/缓存更优选择；`decode.ts`/`decode.test.ts` 已按 JSON 格式重写，position 按字符串 `"x,y"` 解析、`extra.underground.is_underground` 读取，运行时契约 canary 同步更新）
+- **影响**：`list_page_bin/{md5}` 实测返回 gzip 压缩的 **JSON MarkerVo[]**（37 页 / 101,501 点位 / 跨页 id 零重复），而 `list_markers`（全量）返回 gzip **protobuf** MarkerVoList（99,884 条）。此前工作区 decode.ts 按 protobuf 假设，若上线会导致浏览器端分页解码失败（protobuf 解码 JSON 字节抛 invalid tag encoding），地图空白。
+- **建议**：全量接口（protobuf）不作为前端解码链路（性能原因）；`$$userConfigMap` 注释已与实测对齐（`list_markers`=protobuf、`list_page_bin`=JSON）；运行时测试固化 JSON 契约作为 canary，格式一变即红。
