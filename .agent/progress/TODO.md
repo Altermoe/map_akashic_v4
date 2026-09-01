@@ -21,6 +21,7 @@
 
 ## 横切 / 基建
 
+- [x] **运行时测试体系 Phase 1：主要接口运行时单测**（第 5 轮完成）— `src/api/testing/`（env 解析 + node alova 客户端 `visitorLogin` 单飞 + `runtime.test.ts` 14 用例直连 dev 后端）。未配置真实后端时整体 skip；`cacheFor: null` 防 GET 内存缓存复用已消费 body。同时修掉基线 filter-basic/custom 4 个失败（mock 索引值改 numeric id）。发现 `list_page_bin/{md5}` 实测 gzip JSON（非 protobuf，见 KI-12）。Phase 2 候选：OpenAPI 契约回归（拉 spec diff 生成断言）、跨接口一致性扩展。
 - [x] **侧边栏插件化落地** — `src/feature/sider-menus/plugin/`（`defineSiderItem` / 响应式注册中心 `registry.ts` / builtin filter·track·locale·setting），宿主 `sider-menus/index.vue` 按注册表动态渲染按钮与拓展面板，替代 `genshin-map/components/sider-toolbar` 硬编码+slot 方案。二开：`registerSiderItem` 注册一份 manifest（icon/name/layout/order/panel）。`registry.ts` 为纯逻辑，可作为 vitest 首测对象之一（配合 `KI-03`）。
 - [x] **引入 vitest 最小测试闭环**（第 3 轮完成，命中 `KI-03` → [x]）：`vitest.config.ts`（node 环境）+ `pnpm test`/`test:watch`，`precommit`=lint+type+test；抽出纯模块 `decodeMarkerList`（`decode.ts`）、`atlas-layout.ts`，覆盖 decode(2)/atlas-layout(8)/filter-basic(5)/filter-search(4)/filter-custom(5)/smoke(1)=25 tests。`AGENTS.md`/`map-rendering-pipeline` 技能已补闸门与可测缝隙。后续可扩：**filter store Pinia 集成、`sider-menus/plugin/registry`、SFC 薄接线层（可选 Step 5，@vue/test-utils+jsdom）**。
 - [ ] **插件化架构跟进** — 图层系统已方向化（commit 7a6da4a）；核对 proposal/1、2 与红线 3/10 是否一致，确定 MarkerState 注册中心与 store 注册中心接口。

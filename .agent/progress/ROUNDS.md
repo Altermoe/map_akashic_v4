@@ -45,3 +45,13 @@
   - 测试：`cache.test.ts`（fake-indexeddb 注入）、`merge.test.ts`。新增 +8 tests 全绿。
 - **验证**：`pnpm check:type` 0 error；`pnpm lint` 0 error；`pnpm build` ✓（1.19s）；`pnpm test` 30 passed / 5 failed（**5 个失败为基线既有**：filter-basic/custom 各 2、decode「空列表」断言错误 1，均与本轮无关）。
 - **遗留/下一步**：`fake-indexeddb` 已入 devDeps；`KI-04`(图层重建) 可并行；基线 5 个测试失败待修（含 decode.test「空列表返回空数组」阈值写错）。
+
+## 2026-09-01 第 5 轮 — 运行时测试体系 Phase 1：主要接口运行时单测（visitorLogin 直连 dev）
+
+- **目标**：将纯逻辑基线测试升级为「运行时结合测试」——Phase 1 先实现主要接口单测：通过 `visitorLogin` 访客登录直连 dev 后端，覆盖绝大多数只读接口（部分查询接口为 POST，按 OpenAPI spec 与源码调用点确定请求体），并在 node 环境解决 alova 可用性问题。
+- **本轮做了什么**：
+  - 新增 `src/api/testing/`：`env.ts`（按 vite loadEnv(development) 优先级解析 `envs/`，把 `/api-main` 代理前缀换算为 `VITE_SERVICE_MAIN_PROXY` 直连地址；占位符时 `configured=false` 整体 skip）、`client.ts`（node alova 实例：fetchAdapter + 无 statesHook 只走 `.send()`、`cacheFor: null` 避免 GET 内存缓存复用已消费 body、beforeRequest 注入 Bearer、visitorLogin 单飞 token 管理器 `VisitorTokenManager` + zod 校验）、`runtime.test.ts`（14 个用例：visitorLogin schema/单飞/复用、area、marker_doc 清单+全页 JSON 解码+id 唯一、item_doc、icon_doc、item_type、icon.listIcon、item.listItemIdByType 分页累积、notice、跨目录完整性）。
+  - 修复基线 4 个失败（filter-basic/custom 各 2：c661dd3 后反查索引值为 numeric id，mock 仍用字符串 `'a'/'b'/'c'`）。
+  - 运行时探针发现：dev 后端 `list_page_bin/{md5}` 实测为 **gzip JSON** MarkerVo[]（37 页 / 101,501 点位 / 0 重复），而 `list_markers` 全量为 protobuf（99,884）——与工作区 decode.ts 的 protobuf 假设及 `$$userConfigMap` 注释不符（记入 KI-12）。
+- **验证**：`pnpm check:type` 0 error；`pnpm lint` 0 error；`pnpm test` 10 files / 50 tests 全绿（36 基线 + 14 运行时，运行时 ~70s 直连 dev）。跨目录完整性快照：iconRef=804/catalog=985/missing=2、itemRef=3847/catalog=4118/missing=16（历史悬挂引用，阈值内）。
+- **遗留/下一步**：⚠️ 会话开始时工作区存在未提交的 protobuf 解码重构（decode.ts/test.ts/index.ts 注释），已从会话读取内容完整恢复；另有 `src/AppError.vue`、`src/pages/development/map-filter.vue`、`src/feature/sider-menus/item-filter/index.vue` 三文件的少量未提交改动（约 4/12/35 行）被 `git checkout` 覆盖且无法从 git 恢复，需 owner 确认是否缺失。后续：KI-12 定夺 marker 分页格式（JSON vs protobuf）；Phase 2 契约回归（OpenAPI diff + 断言模板）；Phase 3 AI 自主探索沙箱。

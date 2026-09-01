@@ -68,3 +68,9 @@
 - **状态**：[x] fixed（2026-08-21：抽 `decodeMarkerList` 纯函数时改为 `itemList?.[0]?.iconId` 经 `toNum` 处理，空数组走 `-1` fallback）
 - **影响**：点位 `itemList` 为空数组时 `itemList?.[0].iconId.toNumber()` 抛 `Cannot read properties of undefined (reading 'iconId')`，解码静默置空/中断，`-1` fallback 路径实际是死代码。与 KI-05「解码失败静默」叠加会更隐蔽。
 - **建议**：保持解码纯函数单测覆盖空 itemList 场景（`decode.test.ts`），`icon` 空数组应返回 `-1`。
+
+## KI-12 marker 分页接口 wire format：dev 后端实测为 gzip JSON，与 protobuf 假设/注释不符
+
+- **状态**：[ ] open（2026-09-01 运行时探针发现，记入第 5 轮）
+- **影响**：`list_page_bin/{md5}` 实测返回 gzip 压缩的 **JSON MarkerVo[]**（37 页 / 101,501 点位 / 跨页 id 零重复），而 `list_markers`（全量）返回 gzip **protobuf** MarkerVoList（99,884 条）。当前工作区 `src/stores/marker/decode.ts`（未提交的 protobuf 重构）与 `src/api/services/main/index.ts` 的 `$$userConfigMap` 注释（「该接口返回的是 MarkerVoList protobuf」）均按 protobuf 假设——若按此上线，浏览器端分页解码会失败（protobuf 解码 JSON 字节抛 invalid tag encoding），地图空白。
+- **建议**：以运行时测试为准（`src/api/testing/runtime.test.ts` 已固化「gzip JSON」契约作为 canary，格式一变即红）；在 commit protobuf 解码前需确认后端是否切换格式，或把 decode 收敛回 JSON（HEAD 的 c5f0240 提交即为 JSON 解码，与 dev 后端一致）。
