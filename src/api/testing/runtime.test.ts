@@ -21,7 +21,7 @@ import { runtimeTestEnv } from './env'
  *   OpenAPI spec（VITE_SERVICE_MAIN_OPENAPI_URL）与源码调用点确定。
  * - 未配置真实后端（envs 为占位符）时整体 skip，`pnpm test` 保持绿。
  * - 断言贴合「实际 wire format」：marker/item/icon 目录二进制为 gzip JSON
- *   （marker 分页与 `$$userConfigMap` 的 protobuf 注释不符，见 KI-12）。
+ *   （marker 分页格式经 KI-12 定夺：全量接口过慢，分页 JSON 为正式选择）。
  * - 跨目录完整性：marker 引用 vs 图标/物品目录，容忍少量历史悬挂引用（阈值见各用例）。
  */
 
@@ -121,7 +121,7 @@ describe.skipIf(!configured)(
         return all
       }
 
-      it('wire format 契约：分页为 gzip JSON（与 protobuf 注释不符，见 KI-12）', async () => {
+      it('wire format 契约：分页为 gzip JSON（KI-12 定夺，decode.ts 按此实现）', async () => {
         const pages = unwrap<BinaryMD5Vo[]>(
           await runtimeApis.marker_doc.listMarkerBinaryMD5().send(),
         )
