@@ -75,6 +75,7 @@ export const $$userConfigMap = withConfigType({
   'item_doc.listPageItemByBinary': {
     transform: (res) => decompress<ApiTypes.ItemVo[]>(res),
   },
+  /** 与 listPageMarkerByBinary 不同，该接口返回的是 MarkerVoList protobuf */
   'marker_doc.listMarkersByBinary': {
     transform: async (originResponse) => {
       const res = originResponse as unknown as Response
@@ -83,8 +84,6 @@ export const $$userConfigMap = withConfigType({
       return buffer
     },
   },
-  // OpenAPI 误将返回类型解析为 string[]，实际每个分页是无头 gzip 二进制（MarkerVoList protobuf）。
-  // 与 listMarkersByBinary 同路径显式解压为 ArrayBuffer，供 decode.worker 解码。
   'marker_doc.listPageMarkerByBinary': {
     transform: async (originResponse) => {
       const res = originResponse as unknown as Response
