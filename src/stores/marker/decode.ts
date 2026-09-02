@@ -19,7 +19,9 @@ const decodePosition = (raw: string): readonly [x: number, y: number] | null => 
   const commaIndex = raw.indexOf(',')
   if (commaIndex < 0) return null
   const x = parseFloat(raw)
+  if (Number.isNaN(x)) return null
   const y = parseFloat(raw.slice(commaIndex + 1))
+  if (Number.isNaN(y)) return null
   return [x, y]
 }
 
