@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { MarkerThin } from '@/stores/marker'
-import type { FilterContext } from './index'
+import type { FilterContext } from '@/stores/filter/filter-impls'
 
 const state = vi.hoisted(() => ({
   catalogLoaded: true,
@@ -24,7 +24,7 @@ vi.mock('@/stores/marker', () => ({
   useMarkerStore: () => ({ itemMarkerIndex: state.itemMarkerIndex }),
 }))
 
-import { filterCustom } from './filter-custom'
+import { filterCustom } from '@/stores/filter/filter-impls/filter-custom'
 
 const ctx: FilterContext = {
   signal: new AbortController().signal,

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { encodeIndex, decodeIndex } from './indexMapCodec'
+import { encodeIndex, decodeIndex } from '@/stores/marker/indexMapCodec'
 
 describe('indexMapCodec', () => {
   it('编码为两个 Int32Array，还原后与原始 Map 一致', () => {

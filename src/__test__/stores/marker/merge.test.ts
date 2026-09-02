@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import type { MarkerThin } from './index'
-import { mergeDecodedPages, type DecodedPage } from './merge'
+import type { MarkerThin } from '@/stores/marker'
+import { mergeDecodedPages, type DecodedPage } from '@/stores/marker/merge'
 
 const page = (
   thinList: MarkerThin[],

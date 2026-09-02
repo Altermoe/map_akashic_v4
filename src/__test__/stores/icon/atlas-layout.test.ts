@@ -7,7 +7,7 @@ import {
   mainIconCell,
   stateCellX,
   type Layout,
-} from './atlas-layout'
+} from '@/stores/icon/atlas-layout'
 
 const BASE = { size: 64, gap: 1, maxTextureSize: 4096 }
 

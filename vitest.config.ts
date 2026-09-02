@@ -28,5 +28,6 @@ export default defineConfig({
     include: ['src/**/*.test.{ts,tsx,mts,cts,js,jsx}'],
     testTimeout: 10_000,
     pool: 'forks',
+    reporters: ['tree'],
   },
 })

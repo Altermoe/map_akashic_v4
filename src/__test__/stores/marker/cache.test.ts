@@ -1,7 +1,7 @@
 import 'fake-indexeddb/auto'
 import { Dexie, type Table } from 'dexie'
 import { beforeEach, describe, expect, it } from 'vitest'
-import { buildMarkerCache } from './cache'
+import { buildMarkerCache } from '@/stores/marker/cache'
 
 /**
  * cache.ts 单测：用 fake-indexeddb 构造一个独立的 kv 表，验证缓存层读写与清理逻辑。

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { loginResponseSchema } from '../services/auth/schema'
+import { loginResponseSchema } from '@/api/services/auth/schema'
 import type {
   AreaVo,
   BinaryMD5Vo,
@@ -8,9 +8,9 @@ import type {
   ItemVo,
   MarkerVo,
   NoticeVo,
-} from '../services/main/globals'
-import { runtimeApis, tokenManager, unwrap, gunzipText } from './client'
-import { runtimeTestEnv } from './env'
+} from '@/api/services/main/globals'
+import { runtimeApis, tokenManager, unwrap, gunzipText } from '@/api/testing/client'
+import { runtimeTestEnv } from '@/api/testing/env'
 
 /**
  * 运行时接口单测（Phase 1）—— 直连 dev 后端做「运行时数据测试」。

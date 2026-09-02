@@ -17,20 +17,12 @@ const params = useUrlSearchParams<{
   <div class="w-full h-full flex">
     <!-- 亮色模式开发区域 -->
     <div class="relative flex-1 bg-light">
-      <ItemFilter
-        v-model:area-code="params.selectedAreaCode"
-        class="absolute left-8 top-8 h-[calc(100%-4rem)]"
-        style="color-scheme: light"
-      />
+      <ItemFilter v-model:area-code="params.selectedAreaCode" style="color-scheme: light" />
     </div>
 
     <!-- 暗色模式开发区域 -->
     <div class="relative flex-1 bg-dark">
-      <ItemFilter
-        v-model:area-code="params.selectedAreaCode"
-        class="absolute left-8 top-8 h-[calc(100%-4rem)]"
-        style="color-scheme: dark"
-      />
+      <ItemFilter v-model:area-code="params.selectedAreaCode" style="color-scheme: dark" />
     </div>
   </div>
 </template>

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { MarkerVo } from '@/api/services/main/globals'
-import { decodeMarkerList } from './decode'
-import type { MarkerThin } from './index'
+import { decodeMarkerList } from '@/stores/marker/decode'
+import type { MarkerThin } from '@/stores/marker'
 
 /**
  * decodeMarkerList golden data：固定构造 MarkerVo[] → 以 API transform 解压后的 JSON 文本字节喂入 → 解码瘦身。
