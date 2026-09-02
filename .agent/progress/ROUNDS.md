@@ -66,3 +66,13 @@
   - 同步：`runtime.test.ts` wire format 契约用例措辞（定夺而非不符）、`src/api/testing/README.md`、`known-issues.md` KI-12 → [x]。
 - **验证**：`pnpm lint` 0 error；`pnpm check:type` 0 error；`pnpm test` 10 files / 50 tests 全绿（36 基线 + 14 运行时）。
 - **遗留/下一步**：decode.ts 恢复为 JSON 后，原先未提交的 protobuf 重构（已由第 5 轮恢复的会话前工作区状态）正式废弃，本次一并提交收敛。后续：运行时测试 Phase 2（OpenAPI 契约回归）或 `KI-04` 图层重建。
+
+## 2026-09-02 第 7 轮 — development 子页：区域图标网格 + 实时着色（CSS mask）
+
+- **目标**：在 `development` 路由下新建子页面，以 grid 网格渲染 `src/assets/area` 全部图标；右侧加颜色选择器，用 css `background-image` + `mask` 将颜色实时渲染到图标上。
+- **本轮做了什么**：
+  - 新增 `src/pages/development/area-icon-tint.vue`（路由 `/development/area-icon-tint`，development 侧栏经 `route.meta.title` 自动收录「区域图标着色」）。
+  - `import.meta.glob('@/assets/area/*', { eager, import:'default' })` 静态收集 22 张 PNG（含空格文件名），排序后按 `auto-fill minmax(112px,1fr)` 网格渲染。
+  - 右侧复用既有 `OklchColorPicker`（v-model:l/c/h → culori `formatHex(clampRgb)` 实时换算 CSS 色）；网格图标用 `background-image: linear-gradient(tint,tint)` + `mask:url(icon)`（含 `-webkit-mask`）洗色成剪影；checkerboard 底便于观察透明度；原图/着色 checkbox 对照。
+  - 验证：`pnpm fmt` ✓、`pnpm lint` 0 error、`pnpm check:type` 0 error；dev 服务（20928）编译 transform 拉取 SFC 无报错、glob 全量展开 22 项。
+- **遗留/下一步**：无新增阻塞；未提交（随用户确认后提交，勿混入会话前未提交的 `item-filter/index.vue` 改动）。后续仍以 `TODO.md` 里程碑为准。

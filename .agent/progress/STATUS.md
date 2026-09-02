@@ -13,6 +13,8 @@
 
 - 无正在推进的单一实现任务。上一轮（第 6 轮）完成 **KI-12 定夺**：全量接口加载过慢，分页是性能/缓存正解 → `decode.ts`/`decode.test.ts` 重写为分页二进制（gzip JSON）解码（position 字符串 `"x,y"` 解析、`extra.underground.is_underground`），废弃未提交的 protobuf 重构；`runtime.test.ts` wire format 契约用例同步更新。详见 `ROUNDS.md` 第 6 轮。
 
+> 第 7 轮（本轮）**已完成**：`development` 新增子页 `/development/area-icon-tint`「区域图标着色」——`import.meta.glob` 收集 `src/assets/area` 22 张图标按网格渲染，右侧 `OklchColorPicker` + css `background-image`/`mask` 实时洗色。详见 `ROUNDS.md` 第 7 轮。
+
 ## 下一步（最该先做的事）
 
 1. **运行时测试 Phase 2**：OpenAPI 契约回归（拉 `VITE_SERVICE_MAIN_OPENAPI_URL` spec diff 生成断言模板）、更多接口覆盖（icon_type/marker 分页 POST 查询待后端修 500/403 后补）。

@@ -27,6 +27,7 @@
 - [x] **引入 vitest 最小测试闭环**（第 3 轮完成，命中 `KI-03` → [x]）：`vitest.config.ts`（node 环境）+ `pnpm test`/`test:watch`，`precommit`=lint+type+test；抽出纯模块 `decodeMarkerList`（`decode.ts`）、`atlas-layout.ts`，覆盖 decode(2)/atlas-layout(8)/filter-basic(5)/filter-search(4)/filter-custom(5)/smoke(1)=25 tests。`AGENTS.md`/`map-rendering-pipeline` 技能已补闸门与可测缝隙。后续可扩：**filter store Pinia 集成、`sider-menus/plugin/registry`、SFC 薄接线层（可选 Step 5，@vue/test-utils+jsdom）**。
 - [ ] **插件化架构跟进** — 图层系统已方向化（commit 7a6da4a）；核对 proposal/1、2 与红线 3/10 是否一致，确定 MarkerState 注册中心与 store 注册中心接口。
 - [ ] **补 TDD-4/9 设计占位** — `tdds/4-marker-linkage.md`（点位关联）、`tdds/9-overlay-layers.md`（分层层级）目前为 TODO 占位，排期时先补粗粒度设计。
+- [x] **development 子页：区域图标网格 + 实时着色**（第 7 轮）— `src/pages/development/area-icon-tint.vue`（`/development/area-icon-tint`）`import.meta.glob` 收集 `src/assets/area` 22 图标网格渲染；右侧 `OklchColorPicker`（v-model l/c/h → culori）用 css `background-image`(纯色渐变) + `mask:url(icon)` 实时洗色成剪影；原图/着色 checkbox 对照。
 
 ## 收尾检查（每轮退出前对照）
 
