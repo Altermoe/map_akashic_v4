@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { MarkerThin } from '@/stores/marker'
 import type { FilterContext } from '@/stores/filter/filter-impls'
+import type { MarkerThin } from '@/stores/marker'
 
 const state = vi.hoisted(() => ({
   itemMarkerIndex: new Map<number, Set<number>>(),

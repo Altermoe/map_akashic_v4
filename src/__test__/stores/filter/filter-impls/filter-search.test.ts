@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
-import type { MarkerThin } from '@/stores/marker'
 import type { FilterContext } from '@/stores/filter/filter-impls'
+import type { MarkerThin } from '@/stores/marker'
 
 // filterSearch 本身是纯函数，但 filter-impls 入口会把 filter-basic/custom 一并拉入，
 // 其依赖 marker/item-catalog store → Api → navigator.storage（node 下不可用），故需 seam mock 掉。
