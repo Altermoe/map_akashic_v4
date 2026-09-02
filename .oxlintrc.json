@@ -29,6 +29,8 @@
     "src/api/**/apiDefinitions.ts",
     "src/api/**/createApis.ts",
     "src/api/**/globals.d.ts",
-    "src/protobuf/**"
+    "src/protobuf/**",
+    "types/auto-import.d.ts",
+    "types/router.d.ts"
   ]
 }

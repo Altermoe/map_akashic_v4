@@ -7,6 +7,8 @@
     "src/api/**/createApis.ts",
     "src/api/**/globals.d.ts",
     "src/protobuf/**",
+    "types/auto-import.d.ts",
+    "types/router.d.ts",
     "pnpm-lock.yaml",
     "*.md"
   ],
