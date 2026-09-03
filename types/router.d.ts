@@ -39,6 +39,7 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       Record<never, never>,
       | '/development/'
+      | '/development/area-icon-tint'
       | '/development/icon-container'
       | '/development/map-filter'
       | '/development/marker-texture-render'
@@ -47,6 +48,13 @@ declare module 'vue-router/auto-routes' {
     '/development/': RouteRecordInfo<
       '/development/',
       '/development',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/development/area-icon-tint': RouteRecordInfo<
+      '/development/area-icon-tint',
+      '/development/area-icon-tint',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -123,6 +131,7 @@ declare module 'vue-router/auto-routes' {
       routes:
         | '/development'
         | '/development/'
+        | '/development/area-icon-tint'
         | '/development/icon-container'
         | '/development/map-filter'
         | '/development/marker-texture-render'
@@ -133,6 +142,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/development/index.vue': {
       routes:
         | '/development/'
+      views:
+        | never
+    }
+    'src/pages/development/area-icon-tint.vue': {
+      routes:
+        | '/development/area-icon-tint'
       views:
         | never
     }
