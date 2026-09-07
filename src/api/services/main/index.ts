@@ -69,12 +69,15 @@ export const $$userConfigMap = withConfigType({
       expire: 60 * 60 * 1000,
     },
   },
+  /** 后端 OpenAPI 存在错误，此接口实际返回 GZIP 压缩后的二进制 JSON 数据而不是 string[] */
   'icon_doc.listAllIconBinary': {
     transform: (res) => decompress<ApiTypes.IconVo[]>(res),
   },
+  /** 后端 OpenAPI 存在错误，此接口实际返回 GZIP 压缩后的二进制 JSON 数据而不是 string[] */
   'item_doc.listPageItemByBinary': {
     transform: (res) => decompress<ApiTypes.ItemVo[]>(res),
   },
+  /** 后端 OpenAPI 存在错误，此接口实际返回 GZIP 压缩后的二进制 protobuf 数据而不是 string[] */
   /** 与 listPageMarkerByBinary 不同，该接口返回的是 MarkerVoList protobuf */
   'marker_doc.listMarkersByBinary': {
     transform: async (originResponse) => {
@@ -84,6 +87,7 @@ export const $$userConfigMap = withConfigType({
       return buffer
     },
   },
+  /** 后端 OpenAPI 存在错误，此接口实际返回 GZIP 压缩后的二进制 JSON 数据而不是 string[] */
   'marker_doc.listPageMarkerByBinary': {
     transform: async (originResponse) => {
       const res = originResponse as unknown as Response
