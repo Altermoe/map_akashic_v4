@@ -11,6 +11,68 @@ body {
   --gl-8: light-dark(oklch(0.32 0.01 258.37), oklch(0.93 0 247.86));
   --gl-9: light-dark(oklch(0.24 0.01 255.6), oklch(0.98 0 0));
 
+  /* OKLCH - Lightness */
+  --light-0: 0.98;
+  --light-1: 0.93;
+  --light-2: 0.84;
+  --light-3: 0.74;
+  --light-4: 0.64;
+  --light-5: 0.54;
+  --light-6: 0.47;
+  --light-7: 0.39;
+  --light-8: 0.32;
+  --light-9: 0.24;
+
+  --dark-0: 0.18;
+  --dark-1: 0.22;
+  --dark-2: 0.27;
+  --dark-3: 0.33;
+  --dark-4: 0.4;
+  --dark-5: 0.48;
+  --dark-6: 0.58;
+  --dark-7: 0.68;
+  --dark-8: 0.8;
+  --dark-9: 0.92;
+
+  /* OKLCH - Chroma */
+  --chroma-0: 0;
+  --chroma-1: 0.012;
+  --chroma-2: 0.025;
+  --chroma-3: 0.04;
+  --chroma-4: 0.06;
+  --chroma-5: 0.085;
+  --chroma-6: 0.115;
+  --chroma-7: 0.145;
+  --chroma-8: 0.18;
+  --chroma-9: 0.22;
+
+  /* Light */
+  --light-chroma-0: 0;
+  --light-chroma-1: 0.012;
+  --light-chroma-2: 0.025;
+  --light-chroma-3: 0.04;
+  --light-chroma-4: 0.06;
+  --light-chroma-5: 0.085;
+  --light-chroma-6: 0.115;
+  --light-chroma-7: 0.145;
+  --light-chroma-8: 0.18;
+  --light-chroma-9: 0.22;
+
+  /* Dark */
+  --dark-chroma-0: 0;
+  --dark-chroma-1: 0.008;
+  --dark-chroma-2: 0.016;
+  --dark-chroma-3: 0.028;
+  --dark-chroma-4: 0.042;
+  --dark-chroma-5: 0.06;
+  --dark-chroma-6: 0.082;
+  --dark-chroma-7: 0.105;
+  --dark-chroma-8: 0.13;
+  --dark-chroma-9: 0.16;
+
+  /* OKLCH - Hue */
+  --hue-primary: 79.41;
+
   /* 主题色 - 完整的 oklch 颜色值 */
   --brand: oklch(60% 0.1 48);
   /* 色阶通过 CSS color-mix 或 JavaScript 动态生成 */
