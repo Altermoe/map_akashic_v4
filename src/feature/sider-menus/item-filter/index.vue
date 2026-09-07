@@ -1,64 +1,138 @@
+<script lang="ts">
+export interface ItemFilterProps {
+  // ==================== 可变属性 ====================
+  /** 当前选择的地区 */
+  areaCode?: string
+  /** 当前选择的物品分类 */
+  itemTypeId?: number
+  /** 当前已选的物品集合 */
+  itemIds?: number[]
+
+  // ==================== 只读属性 ====================
+  /** 地区 code 索引表 - 优先使用, 覆盖 areaList */
+  areaCodeMap?: Map<string | undefined, AreaVo>
+  /** 物品分类 id 索引表 - 优先使用, 覆盖 itemTypeList */
+  itemTypeIdMap?: Map<number | undefined, ItemTypeVo>
+  /** 物品 id 索引表 - 优先使用, 覆盖 itemList */
+  itemIdMap?: Map<number | undefined, ItemVo>
+}
+</script>
+
 <script setup lang="ts">
-import { TabsContent, TabsIndicator, TabsList, TabsRoot, TabsTrigger } from 'reka-ui'
-import { useI18n } from 'vue-i18n'
-import CustomFilter from '@/components/map-filter/custom-filter.vue'
-import DefaultFilter from '@/components/map-filter/default-filter.vue'
-import { useFilterStore, type FilterMode } from '@/stores'
+import type { AreaVo, ItemTypeVo, ItemVo } from '@/api/services/main/globals'
+import IconRenderer from '@/components/icon-renderer/icon-renderer.vue'
 
-const { t } = useI18n({ useScope: 'global' })
+const props = defineProps<ItemFilterProps>()
 
-const areaCode = defineModel<string | undefined>('areaCode', {
-  required: false,
-  default: '',
+const emits = defineEmits<{
+  'update:areaCode': string
+  'update:itemTypeId': string
+  'update:itemIds': number[]
+}>()
+
+const sortCompare = (a: number | undefined, b: number | undefined) => {
+  if (a === undefined) return 0
+  if (b === undefined) return 0
+  return b - a
+}
+
+const itemTypeList = computed<ItemTypeVo[]>(() => {
+  const map = props.itemTypeIdMap
+  if (!map) return []
+  return map
+    .entries()
+    .map((entry) => entry[1])
+    .filter((type) => type.isFinal)
+    .toArray()
+    .toSorted((a, b) => sortCompare(a.sortIndex, b.sortIndex))
 })
 
-const filterStore = useFilterStore()
-
-/** Tab 与筛选模式双向绑定：切换 Tab 即切换模式（互斥 + 快照保留） */
-const tab = computed<FilterMode>({
-  get: () => filterStore.mode,
-  set: (v) => {
-    void filterStore.setMode(v)
-  },
+const mergedItemList = computed<ItemVo[]>(() => {
+  const map = props.itemIdMap
+  if (!map) return []
+  return map
+    .entries()
+    .map((entry) => entry[1])
+    .toArray()
 })
-
-const tabOptions = [
-  { value: 'default', label: t('sider.filter.default.title') },
-  { value: 'custom', label: t('sider.filter.custom.title') },
-] as const
 </script>
 
 <template>
-  <div class="gi-theme flex h-full w-full flex-col overflow-hidden p-2">
-    <TabsRoot v-model="tab" class="flex min-h-0 flex-1 flex-col">
-      <!-- 顶部 Tab -->
-      <TabsList
-        class="relative mb-2 flex shrink-0 gap-1 rounded-lg border border-[--gi-border] bg-[--gi-surface] p-1"
-      >
-        <TabsTrigger
-          v-for="opt in tabOptions"
-          :key="opt.value"
-          :value="opt.value"
-          class="h-8 flex-1 cursor-pointer select-none rounded-md text-center text-sm leading-8 transition-colors duration-150 hover:bg-[--gi-surface-hover] data-[state=active]:font-medium data-[state=active]:text-[--gi-text-strong] data-[state=inactive]:text-[--gi-text-dim]"
-        >
-          {{ opt.label }}
-        </TabsTrigger>
-        <TabsIndicator
-          class="absolute bottom-1 h-0.5 rounded-full bg-[--gi-gold-bright] transition-all duration-200"
-          style="
-            width: var(--reka-tabs-indicator-size);
-            transform: translateX(var(--reka-tabs-indicator-position));
-          "
-        />
-      </TabsList>
+  <div
+    data-role="筛选器顶级容器，负责处理尺寸变化"
+    class="item-filter-vars w-96 min-h-128 overflow-hidden relative"
+  >
+    <div data-role="不关心尺寸的 div 容器" class="absolute inset-0 w-full h-full flex flex-col">
+      <div data-role="地区选择区" class="h-20 shrink-0">顶部可选地区</div>
 
-      <!-- 双 Tab 面板（force-mount 保持各自状态） -->
-      <TabsContent value="default" force-mount class="min-h-0 flex-1 data-[state=inactive]:hidden">
-        <DefaultFilter v-model:area-code="areaCode" />
-      </TabsContent>
-      <TabsContent value="custom" force-mount class="min-h-0 flex-1 data-[state=inactive]:hidden">
-        <CustomFilter />
-      </TabsContent>
-    </TabsRoot>
+      <div
+        data-role="物品选择区"
+        class="flex-1 overflow-hidden rounded-xl flex flex-col text-[--color-base] bg-[--bg-0] backdrop-blur-md p-1 border border-[#ffffff20]"
+      >
+        <div data-role="检索区" class="shrink-0 w-full h-12">
+          <input />
+        </div>
+
+        <div class="w-full flex-1 overflow-hidden flex">
+          <div
+            data-role="类型选区"
+            class="shrink-0 min-w-40 h-full overflow-auto"
+            style="scrollbar-width: none"
+          >
+            <div>
+              <div
+                v-for="itemType in itemTypeList"
+                :key="itemType.id"
+                class="bg-[--bg-1] rounded-md px-3 py-2 m-1 flex gap-2 select-none cursor-pointer"
+              >
+                <IconRenderer class="size-6 shrink-0" :icon-id="itemType.iconId" />
+                <span>{{ itemType.name }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div
+            data-role="物品选区"
+            class="flex-1 h-full overflow-auto"
+            style="scrollbar-width: none"
+          >
+            <div>
+              <div
+                v-for="item in mergedItemList"
+                :key="item.id"
+                class="flex h-8 w-16 gap-2 text-sm"
+                style="content-visibility: auto"
+              >
+                <IconRenderer class="size-7 shrink-0" :icon-id="item.iconId" />
+                <span>{{ item.name }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
+
+<style scoped>
+.item-filter-vars {
+  /* --color-base: light-dark(
+    oklch(var(--dark-3) var(--dark-chroma-0) var(--hue-primary)),
+    oklch(var(--light-0) var(--light-chroma-0) var(--hue-primary))
+  ); */
+  --color-base: contrast-color(var(--bg-0));
+  --bg-0: light-dark(
+    oklch(var(--light-0) var(--light-chroma-6) var(--hue-primary) / 20%),
+    oklch(var(--dark-2) var(--dark-chroma-3) var(--hue-primary) / 20%)
+  );
+  --bg-1: light-dark(
+    oklch(var(--light-2) var(--light-chroma-4) var(--hue-primary) / 70%),
+    oklch(var(--dark-3) var(--dark-chroma-3) var(--hue-primary) / 35%)
+  );
+
+  --bg-2: light-dark(
+    oklch(var(--light-0) var(--light-chroma-3) var(--hue-primary) / 75%),
+    oklch(var(--dark-2) var(--dark-chroma-3) var(--hue-primary) / 45%)
+  );
+}
+</style>
