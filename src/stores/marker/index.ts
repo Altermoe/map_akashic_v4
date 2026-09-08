@@ -43,7 +43,7 @@ const EMPTY_MARKER_INDEX = new Map<number, Set<number>>()
 /** 分页并发拉取的窗口大小 */
 const PAGE_FETCH_CONCURRENCY = 4
 
-export const useMarkerStore = defineStore('item', () => {
+export const useMarkerStore = defineStore('marker', () => {
   const asyncStore = useAsyncStore()
 
   // —— MD5 清单：先取清单这一固定串行环节，用 useSerialRequest 锚定（immediate 关闭，由 run 手动驱动）。
