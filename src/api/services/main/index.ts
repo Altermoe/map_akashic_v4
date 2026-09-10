@@ -9,7 +9,25 @@ import auth from '../auth'
 import { createApis, withConfigType } from './createApis'
 import type * as ApiTypes from './globals'
 
-const { onAuthRequired } = createClientTokenAuthentication({})
+const { onAuthRequired } = createClientTokenAuthentication({
+  assignToken: (method) => {
+    const tokenValue = useUserStore().isTokenValid()
+    if (!tokenValue) return
+    method.config.headers['Authorization'] =
+      `${toUpperFirst(tokenValue.token_type)} ${tokenValue.access_token}`
+  },
+  refreshToken: {
+    isExpired: () => !useUserStore().isTokenValid(),
+    handler: async () => {
+      const res = await auth
+        .visitorLogin()
+        .send()
+        .catch(() => null)
+      if (!res) return
+      useUserStore().setToken(res)
+    },
+  },
+})
 
 const toUpperFirst = (str: string) => str.replace(/\b\w/g, (c) => c.toUpperCase())
 
@@ -33,18 +51,7 @@ export const alovaInstance = createAlova({
   },
   l2Cache: createKvCache('main-service'),
   requestAdapter: fetchAdapter(),
-  beforeRequest: onAuthRequired(async (method) => {
-    const userStore = useUserStore()
-    const tokenValue = userStore.isTokenValid()
-    if (tokenValue) {
-      method.config.headers['Authorization'] =
-        `${toUpperFirst(tokenValue.token_type)} ${tokenValue.access_token}`
-      return
-    }
-    const res = await auth.visitorLogin().send()
-    method.config.headers['Authorization'] = `${toUpperFirst(res.token_type)} ${res.access_token}`
-    userStore.setToken(res)
-  }),
+  beforeRequest: onAuthRequired(),
   responded: async (res) => {
     const clone = res.clone()
     if (!clone.ok) {
