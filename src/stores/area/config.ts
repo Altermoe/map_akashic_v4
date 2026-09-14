@@ -76,9 +76,13 @@ for (const { code, icon } of areaIconList) {
  * 3. 未命中则通过 parentId 寻找父级，父级有 iconId 时返回 undefined；
  * 4. 仍无则回退到所属根地区（C:XX）的兜底图标，没有则返回 undefined。
  */
-export function getFallbackIcon(area: AreaVo, areaIdMap: Map<number, AreaVo>): string | undefined {
+export function getFallbackIcon(
+  area: AreaVo,
+  areaIdMap: Map<number | undefined, AreaVo>,
+): string | undefined {
   const { code, iconId, parentId } = area
-  if (!code || iconId !== undefined) return undefined
+  if (!code) return undefined
+  if (iconId !== undefined && iconId > 0) return
 
   // 根地区 C:XX
   if (code.startsWith('C:')) return rootFallbackIconMap.get(code)
