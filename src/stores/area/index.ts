@@ -24,6 +24,12 @@ export const useAreaStore = defineStore('area', () => {
     }, new Map<string | undefined, AreaVo>())
   })
 
+  const areaIdMap = computed(() => {
+    return areaSource.value.reduce((map, area) => {
+      return map.set(area.id, area)
+    }, new Map<number | undefined, AreaVo>())
+  })
+
   const getAreaByCode = (code: string | undefined) => {
     if (!code) return
     return areaCodeMap.value.get(code)
@@ -40,6 +46,7 @@ export const useAreaStore = defineStore('area', () => {
     areaSource,
     loading,
     areaCodeMap,
+    areaIdMap,
     getAreaByCode,
     getParentArea,
   }
