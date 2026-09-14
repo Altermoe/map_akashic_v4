@@ -4,6 +4,8 @@ export interface ItemTypeSelectorProps {
   itemTypeList: ItemTypeVo[]
   /** 当前选中的分类 id */
   itemTypeId?: number
+  /** 分类列表加载中：为 true 时渲染骨架占位行 */
+  loading?: boolean
 }
 </script>
 
@@ -25,7 +27,22 @@ defineEmits<{
     class="absolute w-[calc(100%+0.25rem)] h-full left-0 overflow-auto relative"
     style="scrollbar-width: none"
   >
-    <div class="">
+    <!-- 骨架屏：复用真实行的布局节奏（图标块 + 文本条） -->
+    <div v-if="loading" data-role="分类骨架屏">
+      <div
+        v-for="i in 8"
+        :key="i"
+        :class="[
+          'h-10 w-full flex items-center gap-2 px-2 py-2 animate-pulse',
+          'rounded-[0.5rem_0_0_0.5rem]',
+        ]"
+      >
+        <div class="size-6 shrink-0 rounded bg-gray-400/30" />
+        <div class="h-3 rounded bg-gray-400/30" :style="{ width: `${36 + ((i * 17) % 44)}%` }" />
+      </div>
+    </div>
+
+    <div v-else class="">
       <div
         v-for="itemType in itemTypeList"
         :key="itemType.id"
