@@ -11,15 +11,21 @@ export interface ItemFilterProps {
   // ==================== 只读属性 ====================
   /** 地区 code 索引表 */
   areaCodeMap?: Map<string | undefined, AreaVo>
+  /** 地区 id 索引表 */
+  areaIdMap?: Map<number | undefined, AreaVo>
   /** 物品分类 id 索引表 */
   itemTypeIdMap?: Map<number | undefined, ItemTypeVo>
   /** 物品 id 索引表 */
   itemIdMap?: Map<number | undefined, ItemVo>
+  /** 物品分类列表加载中（用于分类选择骨架屏） */
+  itemTypeLoading?: boolean
+  /** 图标 id 索引表 */
+  iconIdMap?: Map<number | undefined, IconVo>
 }
 </script>
 
 <script setup lang="ts">
-import type { AreaVo, ItemTypeVo, ItemVo } from '@/api/services/main/globals'
+import type { AreaVo, IconVo, ItemTypeVo, ItemVo } from '@/api/services/main/globals'
 import AreaSelector from './components/area-selector.vue'
 import ItemSelector from './components/item-selector.vue'
 import ItemTypeSelector from './components/item-type-selector.vue'
@@ -161,6 +167,8 @@ const toggleItemType = (typeId: number) => {
       <AreaSelector
         :area-code="props.areaCode"
         :area-code-map="props.areaCodeMap"
+        :area-id-map="props.areaIdMap"
+        :icon-id-map="props.iconIdMap"
         :count="scopedItems.length"
         :total="props.itemIdMap?.size ?? 0"
       />
@@ -192,6 +200,7 @@ const toggleItemType = (typeId: number) => {
             <ItemTypeSelector
               :item-type-list="itemTypeList"
               :item-type-id="props.itemTypeId"
+              :loading="props.itemTypeLoading"
               @update:item-type-id="toggleItemType"
             />
           </div>

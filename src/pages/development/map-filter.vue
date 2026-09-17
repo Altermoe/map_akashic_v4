@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { useUrlSearchParams } from '@vueuse/core'
-import type { AreaVo, ItemTypeVo, ItemVo } from '@/api/services/main/globals'
 import ItemFilter from '@/feature/sider-menus/item-filter/index.vue'
 import { useAreaStore } from '@/stores/area'
+import { useIconStore } from '@/stores/icon'
 import { useItemStore } from '@/stores/item'
 import { useItemTypeStore } from '@/stores/item-type'
 
@@ -21,6 +21,7 @@ const itemIds = ref<number[]>([])
 
 const areaStore = useAreaStore()
 const itemStore = useItemStore()
+const iconStore = useIconStore()
 const itemTypeStore = useItemTypeStore()
 </script>
 
@@ -35,7 +36,9 @@ const itemTypeStore = useItemTypeStore()
         style="color-scheme: light"
         :area-code-map="areaStore.areaCodeMap"
         :item-type-id-map="itemTypeStore.idMap"
+        :item-type-loading="itemTypeStore.loading"
         :item-id-map="itemStore.idMap"
+        :icon-id-map="iconStore.idMap"
       />
     </div>
 
@@ -47,8 +50,10 @@ const itemTypeStore = useItemTypeStore()
         v-model:item-ids="itemIds"
         style="color-scheme: dark"
         :area-code-map="areaStore.areaCodeMap"
-        :item-id-map="itemStore.idMap"
         :item-type-id-map="itemTypeStore.idMap"
+        :item-type-loading="itemTypeStore.loading"
+        :item-id-map="itemStore.idMap"
+        :icon-id-map="iconStore.idMap"
       />
     </div>
   </div>
