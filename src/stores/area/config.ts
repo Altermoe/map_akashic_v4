@@ -9,9 +9,11 @@ import GoldenAppleArchipelago from '@/assets/area/GoldenAppleArchipelago.png'
 import Inazuma from '@/assets/area/Inazuma.png'
 import LiYue from '@/assets/area/LiYue.png'
 import Mondstadt from '@/assets/area/Mondstadt.png'
+import MoonCanon from '@/assets/area/MoonCanon.png'
 import Natlan from '@/assets/area/Natlan.png'
 import NodKrai from '@/assets/area/NodKrai.png'
 import Simulanka from '@/assets/area/Simulanka.png'
+import Snezhnaya from '@/assets/area/Snezhnaya.png'
 import Sumeru from '@/assets/area/Sumeru.png'
 import SumeruDesert from '@/assets/area/SumeruDesert.png'
 import TempleOfSpace from '@/assets/area/TempleOfSpace.png'
@@ -49,6 +51,9 @@ const areaIconList: AreaIconEntry[] = [
   { code: 'A:NATA:NATA4', icon: Volcano }, // 纳塔·远古圣山
 
   { code: 'C:NDKL', icon: NodKrai }, // 挪德卡莱
+  { code: 'A:NDKL:SY', icon: MoonCanon }, // 挪德卡莱·霜月
+
+  { code: 'C:ZD', icon: Snezhnaya }, // 至冬
 
   { code: 'C:APPLE', icon: GoldenAppleArchipelago }, // 金苹果群岛
   { code: 'A:APPLE:1_6', icon: GoldenAppleArchipelago }, // 1.6 金苹果群岛
