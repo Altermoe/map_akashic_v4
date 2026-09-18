@@ -34,7 +34,7 @@ const icon = computed(() => {
   const { parentId } = props.area
   const parent = props.areaIdMap.get(parentId)
   if (!parent?.code) {
-    return { error: true, url: '', message: 'parent area is empty' }
+    return { error: true, url: Unknown, message: 'parent area is empty' }
   }
 
   // 优先级 2: 父级地区自身的图标
