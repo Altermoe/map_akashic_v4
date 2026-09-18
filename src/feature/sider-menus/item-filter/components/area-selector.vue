@@ -110,11 +110,6 @@ const childArea = computed(() => {
   return selected?.isFinal ? selected : undefined
 })
 
-const getIcon = (area: AreaVo): string | undefined => {
-  if (!props.iconIdMap) return
-  return props.iconIdMap.get(area.iconId)?.url
-}
-
 const handleVisibleChange = (open: boolean) => {
   const tr = document.startViewTransition(() => {
     dialogVisible.value = open
@@ -155,37 +150,53 @@ const handleVisibleChange = (open: boolean) => {
       />
       <DialogContent
         :class="[
-          'w-100dvw max-w-240 min-h-120 mx-auto rounded-lg p-2',
+          'h-100dvh md:h-144',
+          'w-100dvw min-w-80 max-w-240 h-100dvh mx-auto p-8',
           'absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 z-1002',
           'text-white',
+          'border border-red',
+          'flex flex-col overflow-hidden',
         ]"
       >
-        <DialogTitle class="text-4xl font-bold">地区选择</DialogTitle>
-        <DialogDescription>咦……？</DialogDescription>
+        <DialogTitle class="text-4xl font-bold shrink-0">地区选择</DialogTitle>
+        <DialogDescription class="shrink-0 pb-4">前面的地区</DialogDescription>
+        <DialogClose class="shrink-0 absolute right-8 top-8 size-8 border rounded-full">
+          ×
+        </DialogClose>
 
-        <div data-role="二级地区选择" class="w-full">
-          <TabsRoot v-model="activeTab" class="w-full">
-            <TabsList class="w-full flex gap-1 overflow-x-auto p-1 bg-white/10 rounded-lg">
+        <div data-role="二级地区选择" class="w-full flex-1 overflow-hidden">
+          <TabsRoot v-model="activeTab" class="w-full h-full flex flex-col gap-4 overflow-hidden">
+            <TabsList
+              class="w-full shrink-0 flex gap-1 overflow-x-auto p-1 bg-white/10 rounded-xl"
+              style="scrollbar-width: none"
+            >
               <TabsTrigger
                 v-for="area in areaLevel2List"
                 :key="area.id"
                 :value="area.id"
-                class="shrink-0 px-4 py-2 text-sm rounded-lg whitespace-nowrap hover:bg-white/10 data-[state=active]:bg-white/25"
+                class="shrink-0 w-24 py-2 flex flex-col items-center gap-1 text-sm rounded-lg whitespace-nowrap hover:bg-white/10 data-[state=active]:bg-white/25"
               >
-                {{ area.name }}
+                <TintIconRenderer
+                  class="size-12 group-hover:[--tint-color:blue]"
+                  :area="area"
+                  :icon-id-map="props.iconIdMap"
+                  :area-id-map="props.areaIdMap"
+                />
+                <div class="text-xs">{{ area.name }}</div>
               </TabsTrigger>
             </TabsList>
             <TabsContent
               v-for="area in areaLevel2List"
               :key="area.id"
               :value="area.id"
-              class="pt-4 select-none"
+              class="flex-1 select-none overflow-auto"
+              style="scrollbar-width: none"
             >
               <div data-role="三级地区选择" class="flex flex-wrap gap-3">
                 <div
                   v-for="child in getLevel3List(area)"
                   :key="child.id"
-                  class="w-64 h-24 rounded-lg overflow-hidden p-2 flex group hover:bg-white bg-opacity-10"
+                  class="w-72 h-24 rounded-lg overflow-hidden p-2 flex gap-x-2 group hover:bg-white bg-opacity-10"
                 >
                   <TintIconRenderer
                     class="size-20 group-hover:[--tint-color:blue]"
@@ -205,8 +216,6 @@ const handleVisibleChange = (open: boolean) => {
             </TabsContent>
           </TabsRoot>
         </div>
-
-        <DialogClose>关闭弹窗</DialogClose>
       </DialogContent>
     </DialogPortal>
   </DialogRoot>

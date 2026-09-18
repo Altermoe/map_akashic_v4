@@ -54,11 +54,13 @@ const icon = computed(() => {
 </script>
 
 <template>
-  <div
-    class="bg-contain shrink-0"
-    :data-message="icon.message"
-    :style="{
-      backgroundImage: `url(${icon.url})`,
-    }"
-  />
+  <div class="shrink-0">
+    <div
+      class="w-full h-full bg-contain shrink-0"
+      :data-message="icon.message"
+      :style="{
+        backgroundImage: `url(${icon.url})`,
+      }"
+    />
+  </div>
 </template>
