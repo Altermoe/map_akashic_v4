@@ -58,13 +58,13 @@ const areaIconList: AreaIconEntry[] = [
 ]
 
 /** 根地区（C:XX）兜底图标映射 */
-const rootFallbackIconMap = new Map<string, string>()
+export const BUILTIN_ROOT_FALLBACK = new Map<string, string>()
 /** 子地区（A:XX:YY）专项兜底图标映射 */
-const childFallbackIconMap = new Map<string, string>()
+export const BUILTIN_CHILD_FALLBACK = new Map<string, string>()
 
 for (const { code, icon } of areaIconList) {
-  if (code.startsWith('C:')) rootFallbackIconMap.set(code, icon)
-  else childFallbackIconMap.set(code, icon)
+  if (code.startsWith('C:')) BUILTIN_ROOT_FALLBACK.set(code, icon)
+  else BUILTIN_CHILD_FALLBACK.set(code, icon)
 }
 
 /**
@@ -81,23 +81,42 @@ export function getFallbackIcon(
   areaIdMap: Map<number | undefined, AreaVo>,
 ): string | undefined {
   const { code, iconId, parentId } = area
-  if (!code) return undefined
-  if (iconId !== undefined && iconId > 0) return
+
+  if (!code) {
+    console.log('[getFallbackIcon] no code', area.name, undefined)
+    return undefined
+  }
+  if (iconId !== undefined && iconId > 0) {
+    console.log('[getFallbackIcon] iconId > 0', area.name, undefined)
+    return undefined
+  }
 
   // 根地区 C:XX
-  if (code.startsWith('C:')) return rootFallbackIconMap.get(code)
+  if (code.startsWith('C:')) {
+    const rootFallback = BUILTIN_ROOT_FALLBACK.get(code)
+    console.log('[getFallbackIcon] rootFallback', area.name, rootFallback)
+    return rootFallback
+  }
 
   // 子地区 A:XX:YY：先取专项兜底配置
-  const childFallback = childFallbackIconMap.get(code)
-  if (childFallback) return childFallback
+  const childFallback = BUILTIN_CHILD_FALLBACK.get(code)
+  if (childFallback) {
+    console.log('[getFallbackIcon] childFallback', area.name, childFallback)
+    return childFallback
+  }
 
   // 通过 parentId 寻找父级，父级有专属图标则交由调用方渲染
-  if (parentId !== undefined && parentId >= 0) {
+  if (parentId !== undefined && parentId > 0) {
     const parent = areaIdMap.get(parentId)
-    if (parent?.iconId !== undefined) return undefined
+    if (parent?.iconId !== undefined) {
+      console.log('[getFallbackIcon] parent iconId > 0', area.name, undefined)
+      return undefined
+    }
   }
 
   // 回退到所属根地区 C:XX
   const rootCode = `C:${code.slice(2).split(':')[0]}`
-  return rootFallbackIconMap.get(rootCode)
+  const allFallback = BUILTIN_ROOT_FALLBACK.get(rootCode)
+  console.log('[getFallbackIcon] allFallback', area.name, allFallback)
+  return allFallback
 }

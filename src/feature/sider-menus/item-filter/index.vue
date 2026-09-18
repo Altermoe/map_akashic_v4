@@ -10,17 +10,17 @@ export interface ItemFilterProps {
 
   // ==================== 只读属性 ====================
   /** 地区 code 索引表 */
-  areaCodeMap?: Map<string | undefined, AreaVo>
+  areaCodeMap: Map<string | undefined, AreaVo>
   /** 地区 id 索引表 */
-  areaIdMap?: Map<number | undefined, AreaVo>
+  areaIdMap: Map<number | undefined, AreaVo>
   /** 物品分类 id 索引表 */
-  itemTypeIdMap?: Map<number | undefined, ItemTypeVo>
+  itemTypeIdMap: Map<number | undefined, ItemTypeVo>
   /** 物品 id 索引表 */
-  itemIdMap?: Map<number | undefined, ItemVo>
+  itemIdMap: Map<number | undefined, ItemVo>
   /** 物品分类列表加载中（用于分类选择骨架屏） */
   itemTypeLoading?: boolean
   /** 图标 id 索引表 */
-  iconIdMap?: Map<number | undefined, IconVo>
+  iconIdMap: Map<number | undefined, IconVo>
 }
 </script>
 
@@ -211,19 +211,6 @@ const toggleItemType = (typeId: number) => {
             @toggle="toggleGroup"
           />
         </div>
-      </div>
-
-      <div
-        data-role="debug panel"
-        class="bg-white absolute top-0 left-full translate-x-4 left-0 w-full text-sm"
-      >
-        <pre>{{
-          JSON.stringify(
-            { areaCode: props.areaCode, itemTypeId: props.itemTypeId, itemIds: props.itemIds },
-            null,
-            2,
-          )
-        }}</pre>
       </div>
     </div>
   </div>

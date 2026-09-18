@@ -3,11 +3,11 @@ export interface AreaSelectorProps {
   /** 当前选择的地区 code */
   areaCode?: string
   /** 地区 code 索引表 */
-  areaCodeMap?: Map<string | undefined, AreaVo>
+  areaCodeMap: Map<string | undefined, AreaVo>
   /** 地区 id 索引表 */
-  areaIdMap?: Map<number | undefined, AreaVo>
+  areaIdMap: Map<number | undefined, AreaVo>
   /** 图标 id 索引表 */
-  iconIdMap?: Map<number | undefined, IconVo>
+  iconIdMap: Map<number | undefined, IconVo>
   /** 当前作用域内物品数量 */
   count?: number
   /** 物品总数 */
@@ -25,25 +25,20 @@ import {
   DialogClose,
   DialogTitle,
   DialogDescription,
+  TabsRoot,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
 } from 'reka-ui'
 import type { AreaVo, IconVo } from '@/api/services/main/globals'
 import IconRenderer from '@/components/icon-renderer/icon-renderer.vue'
-import { getFallbackIcon } from '@/stores/area/config'
+import TintIconRenderer from './tint-icon-renderer.vue'
 
 const props = withDefaults(defineProps<AreaSelectorProps>(), {
   areaIdMap: () => new Map<number | undefined, AreaVo>(),
 })
 
 const dialogVisible = ref(false)
-
-const areaList = computed(() => {
-  return props.areaCodeMap
-    ?.entries()
-    .map((entry) => entry[1])
-    .filter((area) => !area.isFinal)
-    .toArray()
-    .toSorted((a, b) => (b.sortIndex ?? 0) - (a.sortIndex ?? 0))
-})
 
 /** 当前选中的地区 */
 const selectedArea = computed(() => {
@@ -65,6 +60,50 @@ const parentArea = computed(() => {
   return undefined
 })
 
+/** 一级地区预留给【星球】层级 */
+// TODO: areaLevel1List
+
+/** 二级地区列表 */
+const areaLevel2List = computed(() => {
+  return (
+    props.areaCodeMap
+      ?.entries()
+      .map((entry) => entry[1])
+      .filter((area) => area.id !== undefined && (area.code?.startsWith('C:') ?? false))
+      .toArray()
+      .toSorted((a, b) => (b.sortIndex ?? 0) - (a.sortIndex ?? 0)) ?? []
+  ).map((area) => {
+    return { ...area, id: area.id as number }
+  })
+})
+
+/** 当前在 Tab 中激活的二级地区 id，跟随选中地区变化 */
+const activeLevel2Id = computed<number | undefined>(() => {
+  const selected = selectedArea.value
+  if (!selected) return undefined
+  if (!selected.isFinal) return selected.id
+  return parentArea.value?.id
+})
+
+/** Tab 激活值 */
+const activeTab = ref<number | undefined>(undefined)
+watch(
+  () => activeLevel2Id.value,
+  (id) => {
+    if (id !== undefined) activeTab.value = id
+  },
+  { immediate: true },
+)
+
+/** 取指定父级地区的三级地区列表 */
+const getLevel3List = (parentArea: AreaVo): AreaVo[] =>
+  props.areaCodeMap
+    ?.entries()
+    .map((entry) => entry[1])
+    .filter((area) => area.code?.startsWith('A:') && area.parentId === parentArea.id)
+    .toArray()
+    .toSorted((a, b) => (b.sortIndex ?? 0) - (a.sortIndex ?? 0)) ?? []
+
 /** 展示用的末端地区：仅当选中的是末端地区时存在 */
 const childArea = computed(() => {
   const selected = selectedArea.value
@@ -77,7 +116,10 @@ const getIcon = (area: AreaVo): string | undefined => {
 }
 
 const handleVisibleChange = (open: boolean) => {
-  document.startViewTransition(() => {
+  const tr = document.startViewTransition(() => {
+    dialogVisible.value = open
+  })
+  tr.ready.catch(() => {
     dialogVisible.value = open
   })
 }
@@ -108,34 +150,62 @@ const handleVisibleChange = (open: boolean) => {
     </DialogTrigger>
 
     <DialogPortal>
-      <DialogOverlay class="w-100dvw h-100dvh bg-black bg-opacity-70 z-1001 backdrop-blur-xs" />
+      <DialogOverlay
+        class="fixed left-0 top-0 w-100dvw h-100dvh bg-black bg-opacity-70 z-1001 backdrop-blur-xs"
+      />
       <DialogContent
         :class="[
-          'w-240 min-h-120 mx-auto rounded-lg',
+          'w-100dvw max-w-240 min-h-120 mx-auto rounded-lg p-2',
           'absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 z-1002',
           'text-white',
         ]"
       >
-        <DialogTitle>地区选择</DialogTitle>
-        <DialogDescription>选择一个具体的子地区</DialogDescription>
-        <div class="w-full flex flex-wrap outline outline-red-300 gap-4">
-          <div
-            v-for="area in areaList"
-            :key="area.id"
-            class="w-64 h-24 rounded-lg overflow-hidden flex hover:bg-white bg-opacity-10"
-          >
-            <div
-              class="size-24 bg-contain"
-              :style="{
-                backgroundImage: `url(${getIcon(area) ?? getFallbackIcon(area, props.areaIdMap)})`,
-              }"
-            />
-            <div>
-              <div class="text-lg">{{ area.name }}</div>
-              <div>{{ area.iconId }}</div>
-            </div>
-          </div>
+        <DialogTitle class="text-4xl font-bold">地区选择</DialogTitle>
+        <DialogDescription>咦……？</DialogDescription>
+
+        <div data-role="二级地区选择" class="w-full">
+          <TabsRoot v-model="activeTab" class="w-full">
+            <TabsList class="w-full flex gap-1 overflow-x-auto p-1 bg-white/10 rounded-lg">
+              <TabsTrigger
+                v-for="area in areaLevel2List"
+                :key="area.id"
+                :value="area.id"
+                class="shrink-0 px-4 py-2 text-sm rounded-lg whitespace-nowrap hover:bg-white/10 data-[state=active]:bg-white/25"
+              >
+                {{ area.name }}
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent
+              v-for="area in areaLevel2List"
+              :key="area.id"
+              :value="area.id"
+              class="pt-4 select-none"
+            >
+              <div data-role="三级地区选择" class="flex flex-wrap gap-3">
+                <div
+                  v-for="child in getLevel3List(area)"
+                  :key="child.id"
+                  class="w-64 h-24 rounded-lg overflow-hidden p-2 flex group hover:bg-white bg-opacity-10"
+                >
+                  <TintIconRenderer
+                    class="size-20 group-hover:[--tint-color:blue]"
+                    :area="child"
+                    :icon-id-map="props.iconIdMap"
+                    :area-id-map="props.areaIdMap"
+                  />
+                  <div>
+                    <div class="text-lg leading-tight whitespace-nowrap">{{ child.name }}</div>
+                    <div class="text-xs text-gray-400">{{ `id: ${child.id}` }}</div>
+                    <div class="text-xs text-gray-400">{{ `code: ${child.code}` }}</div>
+                    <div class="text-xs text-gray-400">{{ `parentId: ${child.parentId}` }}</div>
+                    <div class="text-xs text-gray-400">{{ `iconId: ${child.iconId}` }}</div>
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+          </TabsRoot>
         </div>
+
         <DialogClose>关闭弹窗</DialogClose>
       </DialogContent>
     </DialogPortal>
