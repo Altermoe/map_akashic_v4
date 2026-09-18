@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 100 100" fill="none">
+  <g transform="translate(50, 50)">
+    <defs>
+      <rect id="area-rect" x="0.5" y="0.5" width="3" height="3" fill="#FFF" fill-opacity="0.9" transform="rotate(45)" />
+    </defs>
+    <use href="#area-rect" transform="translate(0, -50)" />
+    <use href="#area-rect" transform="rotate(90) translate(0, -50)" />
+    <use href="#area-rect" transform="rotate(180) translate(0, -50)" />
+    <use href="#area-rect" transform="rotate(270) translate(0, -50)" />
+  </g>
+  <g>
+    <polygon points="7,50 50,93 93,50 50,7 7,50" fill="none" stroke="#FFF" stroke-opacity="0.4" stroke-width="1.5" />
+  </g>
+</svg>
